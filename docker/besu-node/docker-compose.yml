@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  besu-node:
+    image: hyperledger/besu:latest
+    container_name: besu-node
+    ports:
+      - "8545:8545"
+      - "30303:30303"
+    volumes:
+      - D:\docker\besu-node:/var/lib/besu
+    command:
+      - "--data-path=/var/lib/besu"
+      - "--rpc-http-enabled"
+      - "--rpc-http-api=ETH,NET,WEB3,DEBUG,ADMIN,TXPOOL,MINER"
+      - "--rpc-http-cors-origins=*"
+      - "--rpc-http-host=0.0.0.0"
+      - "--miner-coinbase=0x9B4320Dc2aa0f8E1846CEB339b4dF9Af748f0664" # change this if you have new account
+      - "--genesis-file=/var/lib/besu/genesis.json"
+      - "--rpc-ws-enabled"
+      - "--rpc-ws-api=ETH,NET,WEB3"
+      - "--host-whitelist=*"
+      - "--unlock=0x9B4320Dc2aa0f8E1846CEB339b4dF9Af748f0664"  # Mở khóa tài khoản
+    entrypoint: [ "/bin/sh", "-c", "
+          besu --data-path=/var/lib/besu --rpc-http-enabled --rpc-http-api=ETH,NET,WEB3,DEBUG,ADMIN,TXPOOL,MINER --rpc-http-cors-origins=* --rpc-http-host=0.0.0.0 --miner-coinbase=0x9B4320Dc2aa0f8E1846CEB339b4dF9Af748f0664
+        " ]
+volumes:
+  besu-data:
