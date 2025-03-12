@@ -1,0 +1,39 @@
+# Byte-compiled / compiled files
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+venv/
+ENV/
+*.env
+*.venv
+
+# Flask instance and config files
+instance/
+config.py
+settings.py
+
+# Logs and database
+logs/
+*.log
+db.sqlite3
+*.db
+
+# Pytest and coverage reports
+.coverage
+htmlcov/
+*.cover
+*.py,cover
+.cache
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml

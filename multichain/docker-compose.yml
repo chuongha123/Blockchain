@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  multichain:
+    image: jhnc/multichain
+    container_name: multichain-node
+    volumes:
+      - multichain-data:/root/.multichain
+    ports:
+      - "8571:8571"
+      - "8572:8572"
+    command: multichaind iot-agriculture -daemon
+
+  api:
+    build: ./backend
+    container_name: flask-api
+    ports:
+      - "5000:5000"
+    depends_on:
+      - multichain
+
+volumes:
+  multichain-data:
