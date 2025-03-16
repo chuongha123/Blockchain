@@ -1,11 +1,14 @@
 from eth_account import Account
+from web3 import Web3
 
-from api.config import w3, CONTRACT_ABI, CONTRACT_ADDRESS
+from api.config import CONTRACT_ABI, CONTRACT_ADDRESS, PRIVATE_KEY, BESU_URL
 
+w3 = Web3(Web3.HTTPProvider(BESU_URL))
 # Kết nối với hợp đồng
-contract = w3.eth.contract(address=CONTRACT_ADDRESS, abi=CONTRACT_ABI)
-private_key = "0ffe7d9804adc81eaf0ed4069199e60d6da463d60aae94adcc9e677efba3b805"  # Khóa riêng của bạn
-account = Account.from_key(private_key)
+contract = w3.eth.contract(address=Web3.to_checksum_address(CONTRACT_ADDRESS), abi=CONTRACT_ABI)
+account = Account.from_key(PRIVATE_KEY)
+w3.eth.defaultAccount = account.address
+
 
 def store_sensor_data(device_id, temperature):
     nonce = w3.eth.get_transaction_count(account.address)
@@ -15,7 +18,7 @@ def store_sensor_data(device_id, temperature):
         "from": account.address,
         "nonce": nonce,
         "gas": 3000000,
-        "gasPrice": w3.to_wei("1", "gwei"),
+        "gasPrice": w3.to_wei("0", "gwei"),
         "chainId": w3.eth.chain_id
     })
     print("transaction: ", transaction)
@@ -35,14 +38,11 @@ def store_sensor_data(device_id, temperature):
 
 
 def get_sensor_data(index):
-    device_id, timestamp, temperature = contract.functions.getData(index).call()
-    return {"timestamp": timestamp, "device_id": device_id, "temperature": temperature}
+    print("contract func: ", contract.functions)
+    data = contract.functions.getData(index).call()
+    return data
 
 
 def get_all_data():
-    nonce = w3.eth.get_transaction_count(account.address)
-    data = contract.functions.getAllData().call({
-        "from": account.address,
-        "nonce": nonce
-    })
+    data = contract.functions.getAllData().call()
     return data

@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  besu:
+    image: hyperledger/besu:latest
+    container_name: besu-node-single
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+      - "30303:30303"
+    volumes:
+      - D:\docker\besu-node\volume:/var/lib/besu
+    command:
+      - --network=dev
+      - --miner-enabled
+      - --miner-coinbase=0x6b7084fEBBAdc59CB1c9aA9346A4c84b1430Be8a
+      - --rpc-http-enabled
+      - --rpc-ws-enabled
+      - --data-path=/var/lib/besu
+    networks:
+      - besu-network
+
+  ethsigner:
+    image: consensys/ethsigner:latest
+    container_name: ethsigner-single
+    depends_on:
+      - besu
+    ports:
+      - "8555:8545"
+    volumes:
+      - D:\docker\besu-node\keystore\keystore.json:/opt/ethsigner/keyfile
+      - D:\docker\besu-node\keystore\password.txt:/opt/ethsigner/passwordfile
+    command:
+      --chain-id=1337
+      --downstream-http-host=besu
+      --downstream-http-port=8545
+      --http-listen-host=0.0.0.0
+      file-based-signer -k /opt/ethsigner/keyfile -p /opt/ethsigner/passwordfile
+    networks:
+      - besu-network
+
+networks:
+  besu-network:
+    driver: bridge

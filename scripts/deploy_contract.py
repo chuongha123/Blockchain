@@ -3,78 +3,119 @@ import requests
 from os import path
 from web3 import Web3
 
-from api.config import ETH_SIGNER_URL
+# Cấu hình kết nối và đường dẫn
+BESU_URL = "http://localhost:8545"
+ETHSIGNER_URL = "http://localhost:8555"
+CONTRACT_JSON_PATH = path.join(path.abspath(path.dirname(__file__)), "../contract/IoTStorage.json")
+CONTRACT_ADDRESS_OUTPUT = path.join(path.abspath(path.dirname(__file__)), "../contract/contract_address.json")
+DEPLOYER_ADDRESS = "0x6b7084fEBBAdc59CB1c9aA9346A4c84b1430Be8a"
+GAS_LIMIT = 3000000
+GAS_PRICE = 0  # 0 Gwei cho môi trường dev
 
-# Kết nối tới Besu (nếu Besu và EthSigner được kết nối với nhau qua downstream, Besu nhận giao dịch đã ký)
-w3 = Web3(Web3.HTTPProvider(ETH_SIGNER_URL))
-assert w3.is_connected(), "❌ Không thể kết nối với Ethereum Node!"
 
-# Đọc Smart Contract từ JSON
-base_dir = path.abspath(path.dirname(__file__))
-with open(path.join(base_dir, "../contract/IoTStorage.json"), "r") as f:
-    contract_json = json.load(f)
-    contract_abi = contract_json["contracts"]["IoTStorage.sol"]["IoTStorage"]["abi"]
-    contract_bytecode = contract_json["contracts"]["IoTStorage.sol"]["IoTStorage"]["evm"]["bytecode"]["object"]
+def load_contract_data(json_path: str) -> tuple:
+    """Đọc file JSON và trả về ABI và bytecode của hợp đồng."""
+    try:
+        with open(json_path, "r") as f:
+            contract_json = json.load(f)
+        contract_abi = contract_json["contracts"]["IoTStorage.sol"]["IoTStorage"]["abi"]
+        contract_bytecode = contract_json["contracts"]["IoTStorage.sol"]["IoTStorage"]["evm"]["bytecode"]["object"]
+        return contract_abi, contract_bytecode
+    except Exception as e:
+        raise Exception(f"Lỗi khi đọc file contract: {e}")
 
-# Địa chỉ tài khoản deploy (cần khớp với tài khoản đã cấu hình EthSigner)
-# Chú ý: khi sử dụng EthSigner, bạn không cần ký giao dịch cục bộ.
-deployer_address = Web3.to_checksum_address("0x65ffd1ddba81dea2bae9d3fc59a60a6b0f746d57")
 
-w3.eth.default_account = deployer_address
+def connect_web3(provider_url: str) -> Web3:
+    """Kết nối tới Besu thông qua HTTPProvider."""
+    w3 = Web3(Web3.HTTPProvider(provider_url))
+    if not w3.is_connected():
+        raise ConnectionError("❌ Không thể kết nối với Ethereum Node!")
+    return w3
 
-# Thiết lập chain_id (ví dụ: 1337 nếu genesis của bạn đặt là 1337)
-chain_id = w3.eth.chain_id
-print("Chain ID:", chain_id)
-print("Block number:", w3.eth.block_number)
 
-# Lấy nonce của tài khoản deploy
-nonce = w3.eth.get_transaction_count(deployer_address)
-print("Nonce:", nonce)
+def build_deploy_transaction(w3: Web3, contract_abi: dict, contract_bytecode: str, deployer: str, nonce: int) -> dict:
+    """Xây dựng giao dịch deploy hợp đồng."""
+    contract = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)
+    tx = contract.constructor().build_transaction({
+        "from": deployer,
+        "nonce": nonce,
+        "gas": GAS_LIMIT,
+        "gasPrice": w3.to_wei(GAS_PRICE, "gwei"),
+        "chainId": w3.eth.chain_id
+    })
+    return tx
 
-# Xây dựng giao dịch deploy hợp đồng
-IoTStorage = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)
-transaction = IoTStorage.constructor().build_transaction({
-    "from": deployer_address,
-    "nonce": nonce,
-    "gas": 3000000,
-    "gasPrice": w3.to_wei("0", "gwei"),  # Chế độ dev nên gasPrice = 0
-    "chainId": chain_id
-})
 
-payload = {
-    "jsonrpc": "2.0",
-    "method": "eth_signTransaction",
-    "params": [transaction],
-    "id": 1
-}
+def sign_transaction_via_ethsigner(tx: dict) -> str:
+    """Gửi giao dịch tới EthSigner để ký và trả về giao dịch đã ký."""
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "eth_signTransaction",
+        "params": [tx],
+        "id": 1
+    }
+    headers = {"Content-Type": "application/json"}
+    print("⏳ Gửi giao dịch đến EthSigner để ký ...")
+    response = requests.post(ETHSIGNER_URL, headers=headers,
+                             data=json.dumps(payload, default=lambda o: o.hex() if isinstance(o, bytes) else o))
 
-# Gửi giao dịch đến EthSigner để ký qua API
-# EthSigner của bạn đang chạy trên cổng 8555 (HTTP endpoint) với subcommand file-based-signer
-headers = {"Content-Type": "application/json"}
+    if response.status_code != 200:
+        raise Exception(f"Lỗi khi gọi EthSigner: {response.text}")
 
-print("⏳ Gửi giao dịch đến EthSigner để ký ...")
-response = requests.post(
-    ETH_SIGNER_URL,
-    headers=headers,
-    data=json.dumps(payload, default=lambda o: o.hex() if isinstance(o, bytes) else o)
-)
-if response.status_code != 200:
-    print("Lỗi khi gọi EthSigner:", response.text)
-    exit(1)
+    signed_tx = response.json().get("result")
+    if not signed_tx:
+        raise Exception("Không nhận được giao dịch đã ký từ EthSigner")
 
-signed_tx = response.json().get("result")
-if not signed_tx:
-    print("Không nhận được giao dịch đã ký từ EthSigner")
-    exit(1)
+    return signed_tx
 
-print("Giao dịch đã được ký thành công, gửi đến Besu ...")
-tx_hash = w3.eth.send_raw_transaction(signed_tx)
-print(tx_hash)
-print("⏳ Đang chờ giao dịch được xác nhận...")
-tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=300)
-contract_address = tx_receipt.contractAddress
-print(f"✅ Smart Contract đã được deploy tại: {contract_address}")
 
-# Ghi địa chỉ contract ra file
-with open(path.join(base_dir, "../contract/contract_address.json"), "w") as f:
-    json.dump({"contract_address": contract_address}, f, indent=4)
+def deploy_contract(w3: Web3, signed_tx: str) -> str:
+    """Gửi giao dịch đã ký và chờ nhận receipt, trả về địa chỉ contract."""
+    tx_hash = w3.eth.send_raw_transaction(signed_tx)
+    print("⏳ Đang chờ giao dịch được xác nhận...")
+    tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=300)
+    return tx_receipt.contractAddress
+
+
+def save_contract_address(file_path: str, contract_address: str) -> None:
+    """Ghi địa chỉ contract ra file JSON."""
+    with open(file_path, "w") as f:
+        json.dump({"contract_address": contract_address}, f, indent=4)
+    print(f"✅ Địa chỉ Smart Contract đã được lưu tại: {file_path}")
+
+
+def main():
+    try:
+        # Kết nối tới Besu
+        w3 = connect_web3(BESU_URL)
+        print("Chain ID:", w3.eth.chain_id)
+        print("Block number:", w3.eth.block_number)
+
+        # Thiết lập tài khoản deploy
+        deployer = Web3.to_checksum_address(DEPLOYER_ADDRESS)
+        w3.eth.default_account = deployer
+        nonce = w3.eth.get_transaction_count(deployer)
+        print("Nonce:", nonce)
+
+        # Đọc thông tin contract
+        contract_abi, contract_bytecode = load_contract_data(CONTRACT_JSON_PATH)
+
+        # Xây dựng giao dịch deploy
+        tx = build_deploy_transaction(w3, contract_abi, contract_bytecode, deployer, nonce)
+
+        # Ký giao dịch qua EthSigner
+        signed_tx = sign_transaction_via_ethsigner(tx)
+        print("Giao dịch đã được ký thành công, gửi đến Besu ...")
+
+        # Gửi giao dịch và lấy địa chỉ contract
+        contract_address = deploy_contract(w3, signed_tx)
+        print(f"✅ Smart Contract đã được deploy tại: {contract_address}")
+
+        # Lưu địa chỉ contract ra file
+        save_contract_address(CONTRACT_ADDRESS_OUTPUT, contract_address)
+    except Exception as e:
+        print(f"❌ Có lỗi xảy ra: {e}")
+
+
+if __name__ == "__main__":
+    main()

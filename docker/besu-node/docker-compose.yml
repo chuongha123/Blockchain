@@ -18,7 +18,7 @@ services:
       --host-allowlist=*
       --rpc-http-cors-origins=*
       --miner-enabled
-      --miner-coinbase=0x43901BF2628Dc274CeD2Ba60Daa3E8076D42800b
+      --miner-coinbase=0x6b7084fEBBAdc59CB1c9aA9346A4c84b1430Be8a
 #      --genesis-file=/config/genesis.json
     volumes:
       - D:\docker\besu-node\volume:/var/lib/besu

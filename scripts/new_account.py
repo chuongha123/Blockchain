@@ -1,6 +1,10 @@
 import json
+import os
+from os import path
+
 from eth_account import Account
 
+base_dir = os.path.abspath(os.path.dirname(__file__))
 # Tạo một tài khoản mới
 acct = Account.create()
 
@@ -8,12 +12,12 @@ acct = Account.create()
 encrypted = Account.encrypt(acct.key, "123456")
 
 # Ghi file keystore (JSON)
-with open("keystore.json", "w") as f:
+with open(path.join(base_dir, "../scripts/keystore.json"), "w") as f:
     json.dump(encrypted, f, indent=4)
 print("Keystore file đã được tạo thành công.")
 
 # Ghi file chứa private key dạng hex (plain text)
-with open("besu_key.txt", "w") as f2:
+with open(path.join(base_dir, "../scripts/besu_key.txt"), "w") as f2:
     f2.write(acct.key.hex())
 
 print(f"Địa chỉ: {acct.address}")
