@@ -2,23 +2,29 @@
 pragma solidity ^0.8.20;
 
 contract IoTStorage {
-    struct IoTData {
-        string deviceId;
-        string data;
+    struct SensorData {
         uint256 timestamp;
+        string deviceId;
+        uint256 temperature;
     }
 
-    mapping(string => IoTData) private dataStorage;
+    SensorData[] public sensorData;
 
-    event DataStored(string deviceId, string data, uint256 timestamp);
+    event DataStored(uint256 index, uint256 timestamp, string deviceId, uint256 temperature);
 
-    function storeData(string memory deviceId, string memory data) public {
-        dataStorage[deviceId] = IoTData(deviceId, data, block.timestamp);
-        emit DataStored(deviceId, data, block.timestamp);
+    function storeData(string memory deviceId, uint256 temperature) public returns (uint256) {
+        uint256 index = sensorData.length;
+        sensorData.push(SensorData(block.timestamp, deviceId, temperature));
+        emit DataStored(index, block.timestamp, deviceId, temperature);
+        return index;
     }
 
-    function getData(string memory deviceId) public view returns (string memory, uint256) {
-        IoTData memory storedData = dataStorage[deviceId];
-        return (storedData.data, storedData.timestamp);
+    function getData(uint256 index) public view returns (string memory, uint256, uint256) {
+        SensorData memory storedData = sensorData[index];
+        return (storedData.deviceId, storedData.timestamp, storedData.temperature);
+    }
+
+    function getAllData() public view returns (SensorData[] memory) {
+        return sensorData;
     }
 }

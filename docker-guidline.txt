@@ -1,16 +1,5 @@
-
--- create new account
-docker run --rm -it -v D:\docker\besu-node:/root/.ethereum ethereum/client-go account new
-
--- account after created then it save in
-"D:\docker\besu-node\keystore\UTC--2025-03-12T16-49-08.631835109Z--9b4320dc2aa0f8e1846ceb339b4df9af748f0664"
-
--- transfer keystore to docker
-docker cp "D:\docker\besu-node\keystore\UTC--2025-03-12T16-49-08.631835109Z--9b4320dc2aa0f8e1846ceb339b4df9af748f0664" besu-node:/var/lib/besu/keystore/
-
 -- check account
 docker exec -it besu-node besu --data-path=/var/lib/besu public-key export-address
 
--- import account
-UTC--2025-03-12T16-49-08.631835109Z--9b4320dc2aa0f8e1846ceb339b4df9af748f0664
-docker exec -it besu-node besu --data-path=/var/lib/besu account import /var/lib/besu/keystore/UTC--2025-03-12T16-49-08.631835109Z--9b4320dc2aa0f8e1846ceb339b4df9af748f0664
+Địa chỉ: 0x65FFD1dDbA81dEA2Bae9d3Fc59A60A6B0F746D57
+Private Key: 0ffe7d9804adc81eaf0ed4069199e60d6da463d60aae94adcc9e677efba3b805
