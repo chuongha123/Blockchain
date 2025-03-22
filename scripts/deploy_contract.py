@@ -4,6 +4,9 @@ from os import path
 import requests
 from web3 import Web3
 
+from api.error import ContractOperationError
+
+
 # Cấu hình kết nối và đường dẫn
 BESU_URL = "http://localhost:8545"
 ETHSIGNER_URL = "http://localhost:8555"
@@ -29,7 +32,7 @@ def load_contract_data(json_path: str) -> tuple:
         ]["bytecode"]["object"]
         return contract_abi, contract_bytecode
     except Exception as e:
-        raise Exception(f"Lỗi khi đọc file contract: {e}")
+        raise ContractOperationError(f"Lỗi khi đọc file contract: {e}")
 
 
 def connect_web3(provider_url: str) -> Web3:
@@ -76,11 +79,11 @@ def sign_transaction_via_ethsigner(tx: dict) -> str:
     )
 
     if response.status_code != 200:
-        raise Exception(f"Lỗi khi gọi EthSigner: {response.text}")
+        raise ContractOperationError(f"Lỗi khi gọi EthSigner: {response.text}")
 
     signed_tx = response.json().get("result")
     if not signed_tx:
-        raise Exception("Không nhận được giao dịch đã ký từ EthSigner")
+        raise ContractOperationError("Không nhận được giao dịch đã ký từ EthSigner")
 
     return signed_tx
 
@@ -91,10 +94,12 @@ def deploy_contract(w3: Web3, signed_tx: str) -> str:
     print("⏳ Đang chờ giao dịch được xác nhận...")
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=300)
     if tx_receipt["status"] == 0:
-        print("⚠️ Transaction bị revert. Kiểm tra nguyên nhân bằng debug_traceTransaction.")
+        print(
+            "⚠️ Transaction bị revert. Kiểm tra nguyên nhân bằng debug_traceTransaction."
+        )
         debug_trace = w3.provider.make_request("debug_traceTransaction", [tx_hash])
         print(json.dumps(debug_trace, indent=4))
-        raise Exception("Giao dịch triển khai bị revert!")
+        raise ContractOperationError("Giao dịch triển khai bị revert!")
     return tx_receipt.contractAddress
 
 
