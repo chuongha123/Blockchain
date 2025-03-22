@@ -1,7 +1,7 @@
 -- check account
 docker exec -it besu-node besu --data-path=/var/lib/besu public-key export-address
 
-Địa chỉ: 0x65FFD1dDbA81dEA2Bae9d3Fc59A60A6B0F746D57
+Address: 0x65FFD1dDbA81dEA2Bae9d3Fc59A60A6B0F746D57
 Private Key: 0ffe7d9804adc81eaf0ed4069199e60d6da463d60aae94adcc9e677efba3b805
 
 --- EthSigner

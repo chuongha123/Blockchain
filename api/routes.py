@@ -12,10 +12,10 @@ def store_data():
     temperature = data.get("temperature")
 
     if not device_id or temperature is None:
-        return jsonify({"error": "Thiếu dữ liệu"}), 400
+        return jsonify({"error": "Missing data"}), 400
 
     tx_hash = store_sensor_data(device_id, temperature)
-    return jsonify({"message": "Dữ liệu đã được lưu", "transaction": tx_hash})
+    return jsonify({"message": "Data has been stored", "transaction": tx_hash})
 
 
 @api.route("/get/<int:index>", methods=["GET"])
@@ -24,7 +24,7 @@ def get_data(index):
         data = get_sensor_data(index)
         return jsonify(data)
     except Exception as e:
-        return jsonify({"error": "Không tìm thấy dữ liệu", "details": str(e)}), 404
+        return jsonify({"error": "Data not found", "details": str(e)}), 404
 
 
 @api.route("/get-all", methods=["GET"])
@@ -33,4 +33,4 @@ def get_all():
         data = get_all_data()
         return jsonify(data)
     except Exception as e:
-        return jsonify({"error": "Không tìm thấy dữ liệu", "details": str(e)}), 404
+        return jsonify({"error": "Data not found", "details": str(e)}), 404

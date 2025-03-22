@@ -7,7 +7,7 @@ from web3 import Web3
 from api.error import ContractOperationError
 
 
-# Cấu hình kết nối và đường dẫn
+# Connection and path configuration
 BESU_URL = "http://localhost:8545"
 ETHSIGNER_URL = "http://localhost:8555"
 CONTRACT_JSON_PATH = path.join(
@@ -18,11 +18,11 @@ CONTRACT_ADDRESS_OUTPUT = path.join(
 )
 DEPLOYER_ADDRESS = "0x6b7084febbadc59cb1c9aa9346a4c84b1430be8a"
 GAS_LIMIT = 8000000
-GAS_PRICE = 0  # 0 Gwei cho môi trường dev
+GAS_PRICE = 0  # 0 Gwei for dev environment
 
 
 def load_contract_data(json_path: str) -> tuple:
-    """Đọc file JSON và trả về ABI và bytecode của hợp đồng."""
+    """Read JSON file and return contract ABI and bytecode."""
     try:
         with open(json_path, "r") as f:
             contract_json = json.load(f)
@@ -32,21 +32,21 @@ def load_contract_data(json_path: str) -> tuple:
         ]["bytecode"]["object"]
         return contract_abi, contract_bytecode
     except Exception as e:
-        raise ContractOperationError(f"Lỗi khi đọc file contract: {e}")
+        raise ContractOperationError(f"Error reading contract file: {e}")
 
 
 def connect_web3(provider_url: str) -> Web3:
-    """Kết nối tới Besu thông qua HTTPProvider."""
+    """Connect to Besu through HTTPProvider."""
     w3 = Web3(Web3.HTTPProvider(provider_url))
     if not w3.is_connected():
-        raise ConnectionError("❌ Không thể kết nối với Ethereum Node!")
+        raise ConnectionError("❌ Cannot connect to Ethereum Node!")
     return w3
 
 
 def build_deploy_transaction(
     w3: Web3, contract_abi: dict, contract_bytecode: str, deployer: str, nonce: int
 ) -> dict:
-    """Xây dựng giao dịch deploy hợp đồng."""
+    """Build contract deployment transaction."""
     contract = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)
     tx = contract.constructor().build_transaction(
         {
@@ -61,7 +61,7 @@ def build_deploy_transaction(
 
 
 def sign_transaction_via_ethsigner(tx: dict) -> str:
-    """Gửi giao dịch tới EthSigner để ký và trả về giao dịch đã ký."""
+    """Send transaction to EthSigner for signing and return the signed transaction."""
     payload = {
         "jsonrpc": "2.0",
         "method": "eth_signTransaction",
@@ -69,7 +69,7 @@ def sign_transaction_via_ethsigner(tx: dict) -> str:
         "id": 1,
     }
     headers = {"Content-Type": "application/json"}
-    print("⏳ Gửi giao dịch đến EthSigner để ký ...")
+    print("⏳ Sending transaction to EthSigner for signing...")
     response = requests.post(
         ETHSIGNER_URL,
         headers=headers,
@@ -79,70 +79,68 @@ def sign_transaction_via_ethsigner(tx: dict) -> str:
     )
 
     if response.status_code != 200:
-        raise ContractOperationError(f"Lỗi khi gọi EthSigner: {response.text}")
+        raise ContractOperationError(f"Error calling EthSigner: {response.text}")
 
     signed_tx = response.json().get("result")
     if not signed_tx:
-        raise ContractOperationError("Không nhận được giao dịch đã ký từ EthSigner")
+        raise ContractOperationError("No signed transaction received from EthSigner")
 
     return signed_tx
 
 
 def deploy_contract(w3: Web3, signed_tx: str) -> str:
-    """Gửi giao dịch đã ký và chờ nhận receipt, trả về địa chỉ contract."""
+    """Send signed transaction and wait for receipt, return contract address."""
     tx_hash = w3.eth.send_raw_transaction(signed_tx)
-    print("⏳ Đang chờ giao dịch được xác nhận...")
+    print("⏳ Waiting for transaction confirmation...")
     tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=300)
     if tx_receipt["status"] == 0:
-        print(
-            "⚠️ Transaction bị revert. Kiểm tra nguyên nhân bằng debug_traceTransaction."
-        )
+        print("⚠️ Transaction reverted. Checking reason with debug_traceTransaction.")
         debug_trace = w3.provider.make_request("debug_traceTransaction", [tx_hash])
         print(json.dumps(debug_trace, indent=4))
-        raise ContractOperationError("Giao dịch triển khai bị revert!")
+        raise ContractOperationError("Deployment transaction reverted!")
     return tx_receipt.contractAddress
 
 
 def save_contract_address(file_path: str, contract_address: str) -> None:
-    """Ghi địa chỉ contract ra file JSON."""
+    """Write contract address to JSON file."""
     with open(file_path, "w") as f:
         json.dump({"contract_address": contract_address}, f, indent=4)
-    print(f"✅ Địa chỉ Smart Contract đã được lưu tại: {file_path}")
+    print(f"✅ Smart Contract address saved at: {file_path}")
 
 
 def main():
     try:
-        # Kết nối tới Besu
+        # Connect to Besu
         w3 = connect_web3(ETHSIGNER_URL)
         print("Chain ID:", w3.eth.chain_id)
         print("Block number:", w3.eth.block_number)
 
-        # Thiết lập tài khoản deploy
+        # Setup deployer account
         deployer = Web3.to_checksum_address(DEPLOYER_ADDRESS)
         w3.eth.default_account = deployer
         nonce = w3.eth.get_transaction_count(deployer)
         print("Nonce:", nonce)
 
-        # Đọc thông tin contract
+        # Read contract information
         contract_abi, contract_bytecode = load_contract_data(CONTRACT_JSON_PATH)
 
-        # Xây dựng giao dịch deploy
+        # Build deployment transaction
         tx = build_deploy_transaction(
             w3, contract_abi, contract_bytecode, deployer, nonce
         )
 
-        # Ký giao dịch qua EthSigner
+        # Sign transaction via EthSigner
         signed_tx = sign_transaction_via_ethsigner(tx)
-        print("Giao dịch đã được ký thành công, gửi đến Besu ...")
+        print("Transaction successfully signed, sending to Besu...")
 
-        # Gửi giao dịch và lấy địa chỉ contract
+        # Send transaction and get contract address
         contract_address = deploy_contract(w3, signed_tx)
-        print(f"✅ Smart Contract đã được deploy tại: {contract_address}")
+        print(f"✅ Smart Contract deployed at: {contract_address}")
 
-        # Lưu địa chỉ contract ra file
+        # Save contract address to file
         save_contract_address(CONTRACT_ADDRESS_OUTPUT, contract_address)
     except Exception as e:
-        print(f"❌ Có lỗi xảy ra: {e}")
+        print(f"❌ An error occurred: {e}")
 
 
 if __name__ == "__main__":
