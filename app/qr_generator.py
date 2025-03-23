@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def generate_qr_code(farm_id, base_url=os.getenv("QRCODE_BASE_URL")):
+def generate_qr_code(farm_id, base_url=os.getenv("PUBLIC_URL")):
     """Tạo mã QR cho thiết bị với URL"""
     # Tạo đường dẫn đầy đủ
-    url = f"{base_url}{farm_id}"
+    url = f"{base_url}/farm/{farm_id}"
 
     # Phương pháp 1: Sử dụng trực tiếp
     qr = qrcode.make(url)
