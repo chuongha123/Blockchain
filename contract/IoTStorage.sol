@@ -1,24 +1,41 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.17;
 
 contract IoTStorage {
-    struct IoTData {
-        string deviceId;
-        string data;
+    struct Farm {
         uint256 timestamp;
+        string farmId;
+        uint256 temperature;
+        uint256 humidity;
+        uint256 waterLevel;
+        string productId;
     }
 
-    mapping(string => IoTData) private dataStorage;
+    Farm[] public farms;
 
-    event DataStored(string deviceId, string data, uint256 timestamp);
+    mapping(string => Farm[]) private farmMapping;
+    mapping(string => bool) private farmExists;
 
-    function storeData(string memory deviceId, string memory data) public {
-        dataStorage[deviceId] = IoTData(deviceId, data, block.timestamp);
-        emit DataStored(deviceId, data, block.timestamp);
+    event DataStored(uint256 index, uint256 timestamp, string farmId, uint256 temperature, uint256 humidity, uint256 waterLevel, string productId);
+
+    function storeData(string memory farmId, uint256 temperature, uint256 humidity, uint256 waterLevel, string memory productId) public returns (uint256) {
+        uint256 index = farms.length;
+        Farm memory farm = Farm(block.timestamp, farmId, temperature, humidity, waterLevel, productId);
+        farms.push(farm);
+        farmMapping[farmId].push(farm);
+        farmExists[farmId] = true;
+
+        emit DataStored(index, block.timestamp, farmId, temperature, humidity, waterLevel, productId);
+        return index;
     }
 
-    function getData(string memory deviceId) public view returns (string memory, uint256) {
-        IoTData memory storedData = dataStorage[deviceId];
-        return (storedData.data, storedData.timestamp);
+    function getAllData() public view returns (Farm[] memory) {
+        return farms;
+    }
+
+    function getDataByFarmId(string memory farmId) public view returns (Farm[] memory) {
+        require(farmExists[farmId], "Device ID does not exist");
+        Farm[] memory result = farmMapping[farmId];
+        return result;
     }
 }

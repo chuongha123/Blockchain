@@ -1,28 +1,46 @@
 version: '3.8'
-
 services:
-  besu-node:
+  besu:
     image: hyperledger/besu:latest
     container_name: besu-node
     ports:
       - "8545:8545"
       - "30303:30303"
+    command: >
+      --network=dev
+      --rpc-http-enabled
+      --rpc-http-api=ADMIN,CLIQUE,ETH,NET,TXPOOL,WEB3,DEBUG
+      --rpc-http-host=0.0.0.0
+      --rpc-http-port=8545
+      --p2p-port=30303
+      --node-private-key-file=/keys/besu_key.txt
+      --data-path=/var/lib/besu
+      --host-allowlist=*
+      --rpc-http-cors-origins=*
+      --miner-enabled
+      --miner-coinbase=0x6b7084fEBBAdc59CB1c9aA9346A4c84b1430Be8a
+#      --genesis-file=/config/genesis.json
     volumes:
-      - D:\docker\besu-node:/var/lib/besu
-    command:
-      - "--data-path=/var/lib/besu"
-      - "--rpc-http-enabled"
-      - "--rpc-http-api=ETH,NET,WEB3,DEBUG,ADMIN,TXPOOL,MINER"
-      - "--rpc-http-cors-origins=*"
-      - "--rpc-http-host=0.0.0.0"
-      - "--miner-coinbase=0x9B4320Dc2aa0f8E1846CEB339b4dF9Af748f0664" # change this if you have new account
-      - "--genesis-file=/var/lib/besu/genesis.json"
-      - "--rpc-ws-enabled"
-      - "--rpc-ws-api=ETH,NET,WEB3"
-      - "--host-whitelist=*"
-      - "--unlock=0x9B4320Dc2aa0f8E1846CEB339b4dF9Af748f0664"  # Mở khóa tài khoản
-    entrypoint: [ "/bin/sh", "-c", "
-          besu --data-path=/var/lib/besu --rpc-http-enabled --rpc-http-api=ETH,NET,WEB3,DEBUG,ADMIN,TXPOOL,MINER --rpc-http-cors-origins=* --rpc-http-host=0.0.0.0 --miner-coinbase=0x9B4320Dc2aa0f8E1846CEB339b4dF9Af748f0664
-        " ]
+      - D:\docker\besu-node\volume:/var/lib/besu
+      - D:\docker\besu-node\keystore\besu_key.txt:/keys/besu_key.txt:ro
+      - D:\docker\besu-node\config\genesis.json:/config/genesis.json:ro
+
+  ethsigner:
+    image: consensys/ethsigner:latest
+    container_name: ethsigner
+    ports:
+      - "8555:8545"  # EthSigner container lắng nghe trên cổng 8545, ánh xạ ra cổng 8555 trên host
+    command: >
+      --chain-id=1337
+      --http-listen-host=0.0.0.0
+      --http-listen-port=8545
+      --downstream-http-host=besu
+      --downstream-http-port=8545
+      file-based-signer -k /opt/ethsigner/keyfile -p /opt/ethsigner/passwordfile
+    volumes:
+      - D:\docker\besu-node\keystore\keystore.json:/opt/ethsigner/keyfile:ro
+      - D:\docker\besu-node\keystore\password.txt:/opt/ethsigner/passwordfile:ro
+    depends_on:
+      - besu
 volumes:
-  besu-data:
+  besu_data:
