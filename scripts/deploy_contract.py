@@ -6,7 +6,6 @@ from web3 import Web3
 
 from api.error import ContractOperationError
 
-
 # Connection and path configuration
 BESU_URL = "http://localhost:8545"
 ETHSIGNER_URL = "http://localhost:8555"
@@ -18,7 +17,7 @@ CONTRACT_ADDRESS_OUTPUT = path.join(
 )
 DEPLOYER_ADDRESS = "0x6b7084febbadc59cb1c9aa9346a4c84b1430be8a"
 GAS_LIMIT = 8000000
-GAS_PRICE = 0  # 0 Gwei for dev environment
+GAS_PRICE = 0  # 0 Gwei for dev environment cloudflared tunnel --url http://localhost:5000
 
 
 def load_contract_data(json_path: str) -> tuple:
@@ -44,7 +43,7 @@ def connect_web3(provider_url: str) -> Web3:
 
 
 def build_deploy_transaction(
-    w3: Web3, contract_abi: dict, contract_bytecode: str, deployer: str, nonce: int
+        w3: Web3, contract_abi: dict, contract_bytecode: str, deployer: str, nonce: int
 ) -> dict:
     """Build contract deployment transaction."""
     contract = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)

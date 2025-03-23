@@ -5,7 +5,9 @@ w3 = Web3(Web3.HTTPProvider(BESU_URL))
 
 
 def main():
-    code = w3.eth.get_code(w3.to_checksum_address("0x95B10206f2D0Bf7d627A72bfdf1c1B9A55841e35"))
+    code = w3.eth.get_code(
+        w3.to_checksum_address("0x0B0b8EFf5b2B8C8f3284e14381d7DcD6dF6C0C59")
+    )
     print("Contract bytecode:", code)
     print("Contract bytecode:", code.hex())
 

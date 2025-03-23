@@ -2,29 +2,40 @@
 pragma solidity ^0.8.17;
 
 contract IoTStorage {
-    struct SensorData {
+    struct Farm {
         uint256 timestamp;
-        string deviceId;
+        string farmId;
         uint256 temperature;
+        uint256 humidity;
+        uint256 waterLevel;
+        string productId;
     }
 
-    SensorData[] public sensorData;
+    Farm[] public farms;
 
-    event DataStored(uint256 index, uint256 timestamp, string deviceId, uint256 temperature);
+    mapping(string => Farm[]) private farmMapping;
+    mapping(string => bool) private farmExists;
 
-    function storeData(string memory deviceId, uint256 temperature) public returns (uint256) {
-        uint256 index = sensorData.length;
-        sensorData.push(SensorData(block.timestamp, deviceId, temperature));
-        emit DataStored(index, block.timestamp, deviceId, temperature);
+    event DataStored(uint256 index, uint256 timestamp, string farmId, uint256 temperature, uint256 humidity, uint256 waterLevel, string productId);
+
+    function storeData(string memory farmId, uint256 temperature, uint256 humidity, uint256 waterLevel, string memory productId) public returns (uint256) {
+        uint256 index = farms.length;
+        Farm memory farm = Farm(block.timestamp, farmId, temperature, humidity, waterLevel, productId);
+        farms.push(farm);
+        farmMapping[farmId].push(farm);
+        farmExists[farmId] = true;
+
+        emit DataStored(index, block.timestamp, farmId, temperature, humidity, waterLevel, productId);
         return index;
     }
 
-    function getData(uint256 index) public view returns (string memory, uint256, uint256) {
-        SensorData memory storedData = sensorData[index];
-        return (storedData.deviceId, storedData.timestamp, storedData.temperature);
+    function getAllData() public view returns (Farm[] memory) {
+        return farms;
     }
 
-    function getAllData() public view returns (SensorData[] memory) {
-        return sensorData;
+    function getDataByFarmId(string memory farmId) public view returns (Farm[] memory) {
+        require(farmExists[farmId], "Device ID does not exist");
+        Farm[] memory result = farmMapping[farmId];
+        return result;
     }
 }
