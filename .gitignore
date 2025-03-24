@@ -5,12 +5,10 @@ __pycache__/
 # Virtual environment
 venv/
 ENV/
-*.env
 *.venv
 
 # Flask instance and config files
 instance/
-config.py
 settings.py
 
 # Logs and database
