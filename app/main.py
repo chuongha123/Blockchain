@@ -5,13 +5,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from app.model.FarmPayload import FarmData
-from blockchain import BlockchainService
+from app.blockchain import BlockchainService
 
 app = FastAPI(title="Farm Monitor API")
 
 # Thiết lập templates và static files
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="app/templates")
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # Khởi tạo blockchain service
 blockchain_service = BlockchainService()

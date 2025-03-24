@@ -1,10 +1,12 @@
 import json
 from os import path
-
 import requests
 from web3 import Web3
 
-from api.error import ContractOperationError
+class ContractOperationError(Exception):
+    """Exception when the transaction declares the contract to be reversed"""
+
+    pass
 
 # Connection and path configuration
 BESU_URL = "http://localhost:8545"
@@ -15,7 +17,7 @@ CONTRACT_JSON_PATH = path.join(
 CONTRACT_ADDRESS_OUTPUT = path.join(
     path.abspath(path.dirname(__file__)), "../contract/contract_address.json"
 )
-DEPLOYER_ADDRESS = "0x6b7084febbadc59cb1c9aa9346a4c84b1430be8a"
+DEPLOYER_ADDRESS = "0xc269666872710c82Ba84163a9727A72C77Bc79bB"
 GAS_LIMIT = 8000000
 GAS_PRICE = 0  # 0 Gwei for dev environment cloudflared tunnel --url http://localhost:5000
 
