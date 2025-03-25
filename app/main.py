@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 app = FastAPI(title="Farm Monitor API")
 
 load_dotenv()
-00
+
 def generate_qr_code(farm_id, base_url=os.getenv("PUBLIC_URL")):
     """Tạo mã QR cho thiết bị với URL"""
     # Tạo đường dẫn đầy đủ
@@ -21,6 +21,8 @@ def generate_qr_code(farm_id, base_url=os.getenv("PUBLIC_URL")):
 
     # Phương pháp 1: Sử dụng trực tiếp
     qr = qrcode.make(url)
+
+    print("QR:", url)
 
     # Tạo thư mục nếu chưa tồn tại
     os.makedirs("app/static/qr_codes", exist_ok=True)
