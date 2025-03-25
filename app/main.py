@@ -6,8 +6,30 @@ from fastapi.templating import Jinja2Templates
 
 from app.model.FarmPayload import FarmData
 from app.blockchain import BlockchainService
+import os
 
+import qrcode
+from dotenv import load_dotenv
 app = FastAPI(title="Farm Monitor API")
+
+load_dotenv()
+00
+def generate_qr_code(farm_id, base_url=os.getenv("PUBLIC_URL")):
+    """Tạo mã QR cho thiết bị với URL"""
+    # Tạo đường dẫn đầy đủ
+    url = f"{base_url}/farm/{farm_id}"
+
+    # Phương pháp 1: Sử dụng trực tiếp
+    qr = qrcode.make(url)
+
+    # Tạo thư mục nếu chưa tồn tại
+    os.makedirs("app/static/qr_codes", exist_ok=True)
+
+    # Lưu hình ảnh
+    file_path = f"app/static/qr_codes/qr_{farm_id}.png"
+    qr.save(file_path)
+
+    return f"qr_codes/qr_{farm_id}.png"
 
 # Thiết lập templates và static files
 templates = Jinja2Templates(directory="app/templates")
@@ -94,14 +116,26 @@ async def store_farm_data(data: FarmData):
         )
 
 
+# @app.get("/generate-qr/{farm_id}")
+# async def create_qr_code(farm_id: str):
+#     """Tạo mã QR cho thiết bị"""
+#     from qr_generator import generate_qr_code
+
+#     qr_path = generate_qr_code(farm_id)
+#     return {"message": "QR code đã được tạo", "qr_url": f"/static/{qr_path}"}
 @app.get("/generate-qr/{farm_id}")
 async def create_qr_code(farm_id: str):
     """Tạo mã QR cho thiết bị"""
-    from qr_generator import generate_qr_code
-
-    qr_path = generate_qr_code(farm_id)
-    return {"message": "QR code đã được tạo", "qr_url": f"/static/{qr_path}"}
-
-
+    try:
+        qr_path = generate_qr_code(farm_id)
+        if not qr_path:
+            raise ValueError("QR path is empty")
+        return {"message": "QR code đã được tạo", "qr_url": f"/static/{qr_path}"}
+    except Exception as e:
+        return {
+            "error": "Không thể tạo mã QR",
+            "details": str(e)
+        }
+    
 if __name__ == "__main__":
     uvicorn.run("app.main:app", host="localhost", port=8000, reload=True)
