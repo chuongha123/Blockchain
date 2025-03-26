@@ -62,9 +62,10 @@ class BlockchainService:
             )
             humidity = int(data.get("humidity"))
             water_level = int(data.get("water_level"))
+            light_level = int(data.get("light_level"))
             nonce = self.web3.eth.get_transaction_count(self.account.address)
             # Build deployment transaction
-            stored_func = self.contract.functions.storeData(farm_id, temperature, humidity, water_level, data.get("product_id"))
+            stored_func = self.contract.functions.storeData(farm_id, temperature, humidity, water_level, data.get("product_id"), light_level)
             transaction = stored_func.build_transaction(
                 {
                     "from": self.account.address,
@@ -98,16 +99,16 @@ class BlockchainService:
                 print(f"Không tìm thấy dữ liệu cho farm {farm_id}")
                 return None
 
-            # Chuyển đổi dữ liệu sang định dạng dễ đọc
             formatted_data = []
             for item in raw_data:
                 formatted_item = {
                     'timestamp': item[0],
                     'farmId': item[1],
-                    'temperature': item[2] / 100,  # Chuyển đổi lại temperature
+                    'temperature': item[2] / 100,
                     'humidity': item[3],
                     'waterLevel': item[4],
-                    'productId': item[5]
+                    'productId': item[5],
+                    'lightLevel': item[6]
                 }
                 formatted_data.append(formatted_item)
 

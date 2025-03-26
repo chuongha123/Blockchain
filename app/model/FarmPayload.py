@@ -9,3 +9,4 @@ class FarmData(BaseModel):
     temperature: Optional[float] = None
     humidity: Optional[float] = None
     water_level: Optional[float] = None
+    light_level: Optional[float] = None

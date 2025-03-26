@@ -71,6 +71,9 @@
                   <th class="sortable" data-sort="productId">
                     Sản phẩm ID <span class="sort-icon"></span>
                   </th>
+                  <th class="sortable" data-sort="lightLevel">
+                    Độ sáng <span class="sort-icon"></span>
+                  </th>
                 </tr>
               </thead>
               <tbody id="dataTableBody">
@@ -193,6 +196,9 @@
             const productIdCell = document.createElement('td');
             productIdCell.textContent = item.productId;
 
+            const lightLevelCell = document.createElement('td');
+            lightLevelCell.textContent = item.lightLevel;
+
             // Append cells to row
             row.appendChild(timestampCell);
             row.appendChild(farmIdCell);
@@ -200,6 +206,7 @@
             row.appendChild(humidityCell);
             row.appendChild(waterLevelCell);
             row.appendChild(productIdCell);
+            row.appendChild(lightLevelCell);
 
             // Append row to table
             tableBody.appendChild(row);
