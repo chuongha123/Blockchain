@@ -18,15 +18,16 @@ services:
       --host-allowlist=*
       --rpc-http-cors-origins=*
       --miner-enabled
-      --miner-coinbase=0xc269666872710c82Ba84163a9727A72C77Bc79bB
+      --miner-coinbase=0xeC85BF962dEe82bC2721CFd328F580DFb3f4cD6b
 #      --genesis-file=/config/genesis.json
     volumes:
-      - D:\docker\besu-node\volume:/var/lib/besu
-      - D:\blockchain\Blockchain\scripts\besu_key.txt:/keys/besu_key.txt:ro
+      - "/Users/huyhanhat/Documents/My_Projects/study/Blockchain/docker/besu-node/volume:/var/lib/besu"
+      - "/Users/huyhanhat/Documents/My_Projects/study/Blockchain/scripts/besu_key.txt:/keys/besu_key.txt:ro"
       # - D:\docker\besu-node\config\genesis.json:/config/genesis.json:ro
 
   ethsigner:
     image: consensys/ethsigner:latest
+    platform: linux/amd64
     container_name: ethsigner
     ports:
       - "8555:8545"  # EthSigner container lắng nghe trên cổng 8545, ánh xạ ra cổng 8555 trên host
@@ -38,8 +39,8 @@ services:
       --downstream-http-port=8545
       file-based-signer -k /opt/ethsigner/keyfile -p /opt/ethsigner/passwordfile
     volumes:
-      - D:\blockchain\Blockchain\scripts\keystore.json:/opt/ethsigner/keyfile:ro
-      - D:\blockchain\Blockchain\scripts\password.txt:/opt/ethsigner/passwordfile:ro
+      - "/Users/huyhanhat/Documents/My_Projects/study/Blockchain/scripts/keystore.json:/opt/ethsigner/keyfile:ro"
+      - "/Users/huyhanhat/Documents/My_Projects/study/Blockchain/scripts/password.txt:/opt/ethsigner/passwordfile:ro"
     depends_on:
       - besu
 volumes:
