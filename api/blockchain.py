@@ -46,3 +46,4 @@ def get_sensor_data(index):
 def get_all_data():
     data = contract.functions.getAllData().call()
     return data
+

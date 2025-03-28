@@ -33,6 +33,15 @@ def generate_qr_code(farm_id, base_url=os.getenv("PUBLIC_URL")):
 
     return f"qr_codes/qr_{farm_id}.png"
 
+
+def generate_qr_home_page_code():
+    """Tạo mã QR cho trang chủ"""
+    url = f"{os.getenv('PUBLIC_URL')}"
+    qr = qrcode.make(url)
+    file_path = f"app/static/qr_codes/qr_home_page.png"
+    qr.save(file_path)
+    return f"qr_codes/qr_home_page.png"
+
 # Thiết lập templates và static files
 templates = Jinja2Templates(directory="app/templates")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
@@ -92,6 +101,7 @@ async def store_farm_data(data: FarmData):
             "humidity": data.humidity,
             "water_level": data.water_level,
             "product_id": data.product_id,
+            "light_level": data.light_level,
         }
 
         # Gọi service lưu trữ dữ liệu
@@ -130,6 +140,21 @@ async def create_qr_code(farm_id: str):
     """Tạo mã QR cho thiết bị"""
     try:
         qr_path = generate_qr_code(farm_id)
+        if not qr_path:
+            raise ValueError("QR path is empty")
+        return {"message": "QR code đã được tạo", "qr_url": f"/static/{qr_path}"}
+    except Exception as e:
+        return {
+            "error": "Không thể tạo mã QR",
+            "details": str(e)
+        }
+    
+
+@app.get("/generate-qr")
+async def create_qr_code():
+    """Tạo mã QR cho thiết bị"""
+    try:
+        qr_path = generate_qr_home_page_code()
         if not qr_path:
             raise ValueError("QR path is empty")
         return {"message": "QR code đã được tạo", "qr_url": f"/static/{qr_path}"}

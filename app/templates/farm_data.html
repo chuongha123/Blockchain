@@ -42,7 +42,7 @@
     <div class="container mt-4">
       <div class="card">
         <div class="card-header bg-success text-white">
-          <h2 class="mb-0">Thông tin Nông trại: {{ farm_id }}</h2>
+          <h2 class="mb-0">Truy Xuất Nguồn Gốc Của Mã Sản Phẩm: {{ farm_id }}</h2>
         </div>
 
         <div class="card-body">
@@ -66,13 +66,13 @@
                     Độ ẩm (%) <span class="sort-icon"></span>
                   </th>
                   <th class="sortable" data-sort="waterLevel">
-                    Mực nước <span class="sort-icon"></span>
+                    Độ ẩm đất (%) <span class="sort-icon"></span>
+                  </th>
+                  <th class="sortable" data-sort="lightLevel">
+                    Độ sáng (%) <span class="sort-icon"></span>
                   </th>
                   <th class="sortable" data-sort="productId">
                     Sản phẩm ID <span class="sort-icon"></span>
-                  </th>
-                  <th class="sortable" data-sort="lightLevel">
-                    Độ sáng <span class="sort-icon"></span>
                   </th>
                 </tr>
               </thead>
@@ -193,11 +193,11 @@
             const waterLevelCell = document.createElement('td');
             waterLevelCell.textContent = item.waterLevel;
 
-            const productIdCell = document.createElement('td');
-            productIdCell.textContent = item.productId;
-
             const lightLevelCell = document.createElement('td');
             lightLevelCell.textContent = item.lightLevel;
+
+            const productIdCell = document.createElement('td');
+            productIdCell.textContent = item.productId;
 
             // Append cells to row
             row.appendChild(timestampCell);
@@ -205,8 +205,8 @@
             row.appendChild(tempCell);
             row.appendChild(humidityCell);
             row.appendChild(waterLevelCell);
-            row.appendChild(productIdCell);
             row.appendChild(lightLevelCell);
+            row.appendChild(productIdCell);
 
             // Append row to table
             tableBody.appendChild(row);
