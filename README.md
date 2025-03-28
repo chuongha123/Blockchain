@@ -2,7 +2,7 @@
 
 #### 1. Mở terminal và chạy lệnh để install packages
 
-```
+```bash
 # Tạo thư mục virtual environment
 python -m venv .venv
 
