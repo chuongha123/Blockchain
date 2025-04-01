@@ -201,17 +201,24 @@
             <h2 class="text-center section-title">Liên hệ với chúng tôi</h2>
             <div class="row">
                 <div class="col-md-6">
-                    <form>
+                    <form id="contactForm">
                         <div class="mb-3">
-                            <input type="text" class="form-control" placeholder="Họ và tên">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Họ và tên" required>
+                            <div class="invalid-feedback">Vui lòng nhập họ và tên</div>
                         </div>
                         <div class="mb-3">
-                            <input type="email" class="form-control" placeholder="Email">
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                            <div class="invalid-feedback">Vui lòng nhập địa chỉ email hợp lệ</div>
                         </div>
                         <div class="mb-3">
-                            <textarea class="form-control" rows="5" placeholder="Nội dung"></textarea>
+                            <textarea class="form-control" id="message" name="message" rows="5" placeholder="Nội dung" required></textarea>
+                            <div class="invalid-feedback">Vui lòng nhập nội dung tin nhắn</div>
                         </div>
-                        <button type="submit" class="btn btn-success">Gửi tin nhắn</button>
+                        <button type="submit" class="btn btn-success" id="submitBtn">
+                            <span id="submitText">Gửi tin nhắn</span>
+                            <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                        <div id="formResult" class="mt-3"></div>
                     </form>
                 </div>
                 <div class="col-md-6">
@@ -292,6 +299,80 @@
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
+            });
+        });
+
+        // Xử lý form liên hệ
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Lấy form elements
+            const form = this;
+            const formResult = document.getElementById('formResult');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                form.classList.add('was-validated');
+                return;
+            }
+            
+            // Hiển thị trạng thái loading
+            submitBtn.disabled = true;
+            submitText.innerText = 'Đang gửi...';
+            submitSpinner.classList.remove('d-none');
+            formResult.innerHTML = '';
+            
+            // Lấy dữ liệu form
+            const formData = {
+                name: document.getElementById('name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                message: document.getElementById('message').value.trim()
+            };
+            
+            // Gửi dữ liệu đến server
+            fetch('/send-contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hiển thị kết quả
+                if (data.success) {
+                    formResult.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> ${data.message}
+                        </div>
+                    `;
+                    // Reset form
+                    form.reset();
+                    form.classList.remove('was-validated');
+                } else {
+                    formResult.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                formResult.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Đã xảy ra lỗi: ${error.message}
+                    </div>
+                `;
+            })
+            .finally(() => {
+                // Phục hồi trạng thái nút gửi
+                submitBtn.disabled = false;
+                submitText.innerText = 'Gửi tin nhắn';
+                submitSpinner.classList.add('d-none');
             });
         });
 

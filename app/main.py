@@ -4,6 +4,11 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
+from pydantic import BaseModel
 
 from app.blockchain import BlockchainService
 from app.generate_qr import GenerateQRService
@@ -18,6 +23,18 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 blockchain_service = BlockchainService()
 generate_qr_service = GenerateQRService()
+
+# Email configuration
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_USERNAME = os.getenv("EMAIL_USERNAME", "")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
+EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER", "")
+
+class ContactForm(BaseModel):
+    name: str
+    email: str
+    message: str
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -125,6 +142,62 @@ async def create_qr_code():
         return {
             "error": "Không thể tạo mã QR",
             "details": str(e)
+        }
+
+
+@app.post("/send-contact")
+async def send_contact_email(contact: ContactForm):
+    """Xử lý gửi email từ form liên hệ"""
+    try:
+        # Kiểm tra thông tin cấu hình email
+        if not all([EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]):
+            return {
+                "success": False,
+                "message": "Chưa cấu hình email server. Vui lòng liên hệ quản trị viên."
+            }
+        print(EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER)
+        # Tạo nội dung email
+        subject = f"Liên hệ mới từ {contact.name}"
+        
+        # Tạo message
+        msg = MIMEMultipart()
+        msg['From'] = EMAIL_USERNAME
+        msg['To'] = EMAIL_RECEIVER
+        msg['Subject'] = subject
+        
+        # Có thể thêm Reply-To để người nhận có thể phản hồi cho người gửi form
+        msg['Reply-To'] = contact.email
+        
+        # Nội dung email
+        body = f"""
+        <html>
+        <body>
+            <h2>Thông tin liên hệ mới</h2>
+            <p><strong>Họ và tên:</strong> {contact.name}</p>
+            <p><strong>Email:</strong> {contact.email}</p>
+            <p><strong>Nội dung:</strong></p>
+            <p>{contact.message}</p>
+        </body>
+        </html>
+        """
+        
+        msg.attach(MIMEText(body, 'html'))
+        
+        # Gửi email
+        with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
+            server.send_message(msg)
+        
+        return {
+            "success": True,
+            "message": "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất."
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "message": f"Không thể gửi email: {str(e)}"
         }
 
 

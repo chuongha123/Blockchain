@@ -11,13 +11,20 @@ class ContractOperationError(Exception):
 # Connection and path configuration
 BESU_URL = "http://localhost:8545"
 ETHSIGNER_URL = "http://localhost:8555"
+base_dir = path.abspath(path.dirname(__file__))
 CONTRACT_JSON_PATH = path.join(
-    path.abspath(path.dirname(__file__)), "../contract/IoTStorage.json"
+    base_dir, "../contract/IoTStorage.json"
 )
 CONTRACT_ADDRESS_OUTPUT = path.join(
-    path.abspath(path.dirname(__file__)), "../contract/contract_address.json"
+    base_dir, "../contract/contract_address.json"
 )
-DEPLOYER_ADDRESS = "0xeC85BF962dEe82bC2721CFd328F580DFb3f4cD6b"
+
+
+account_address_path = path.join(base_dir, "../scripts/account_info.json")
+with open(account_address_path, "r") as f:
+    account_address_json = json.load(f)
+    DEPLOYER_ADDRESS = account_address_json["address"]
+
 GAS_LIMIT = 8000000
 GAS_PRICE = 0  # 0 Gwei for dev environment cloudflared tunnel --url http://localhost:5000
 
