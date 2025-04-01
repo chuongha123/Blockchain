@@ -1,11 +1,7 @@
-import os
-
 from dotenv import load_dotenv
-from flask import jsonify
 from web3 import Web3
 
-from api.config import CONTRACT_ABI
-from app.model.FarmPayload import FarmData
+from app.config import CONTRACT_ABI, BESU_URL, CONTRACT_ADDRESS, PRIVATE_KEY
 
 # Tải biến môi trường
 load_dotenv()
@@ -23,9 +19,9 @@ class BlockchainService:
     def _initialize_blockchain(self):
         """Khởi tạo kết nối với blockchain"""
         try:
-            provider_url = os.getenv("BLOCKCHAIN_PROVIDER_URL")
-            contract_address = os.getenv("CONTRACT_ADDRESS")
-            private_key = os.getenv("PRIVATE_KEY")
+            provider_url = BESU_URL
+            contract_address = CONTRACT_ADDRESS
+            private_key = PRIVATE_KEY
 
             # Kết nối Web3
             self.web3 = Web3(Web3.HTTPProvider(provider_url))
@@ -65,7 +61,8 @@ class BlockchainService:
             light_level = int(data.get("light_level"))
             nonce = self.web3.eth.get_transaction_count(self.account.address)
             # Build deployment transaction
-            stored_func = self.contract.functions.storeData(farm_id, temperature, humidity, water_level, data.get("product_id"), light_level)
+            stored_func = self.contract.functions.storeData(farm_id, temperature, humidity, water_level,
+                                                            data.get("product_id"), light_level)
             transaction = stored_func.build_transaction(
                 {
                     "from": self.account.address,
