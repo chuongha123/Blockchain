@@ -1,0 +1,42 @@
+/* Base Styles */
+body {
+    background-color: #f5f5f5;
+}
+
+/* Section Styles */
+.section-title {
+    position: relative;
+    margin-bottom: 45px;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background-color: #28a745;
+}
+
+/* Pagination Styles */
+.page-item.active .page-link {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.page-link {
+    color: #198754;
+}
+
+.page-link:hover {
+    color: #0f5132;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .sensor-value {
+        font-size: 1.5rem;
+    }
+}

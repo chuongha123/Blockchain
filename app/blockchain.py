@@ -3,7 +3,7 @@ from web3 import Web3
 
 from app.config import CONTRACT_ABI, BESU_URL, CONTRACT_ADDRESS, PRIVATE_KEY
 
-# Tải biến môi trường
+# Load environment variables
 load_dotenv()
 
 
@@ -17,39 +17,39 @@ class BlockchainService:
         return cls._instance
 
     def _initialize_blockchain(self):
-        """Khởi tạo kết nối với blockchain"""
+        """Initialize blockchain connection"""
         try:
             provider_url = BESU_URL
             contract_address = CONTRACT_ADDRESS
             private_key = PRIVATE_KEY
 
-            # Kết nối Web3
+            # Connect Web3
             self.web3 = Web3(Web3.HTTPProvider(provider_url))
 
             if not self.web3.is_connected():
-                print("Không thể kết nối tới blockchain")
+                print("Cannot connect to blockchain")
                 return
 
-            # Tạo tài khoản từ private key
+            # Create account from private key
             self.account = self.web3.eth.account.from_key(private_key)
 
-            # Khởi tạo contract
+            # Initialize contract
             self.contract = self.web3.eth.contract(
                 address=self.web3.to_checksum_address(contract_address),
                 abi=CONTRACT_ABI,
             )
 
-            print(f"Đã kết nối tới blockchain, địa chỉ ví: {self.account.address}")
+            print(f"Connected to blockchain, account address: {self.account.address}")
             self.initialized = True
 
         except Exception as e:
-            print(f"Lỗi khi khởi tạo blockchain: {str(e)}")
+            print(f"Error initializing blockchain: {str(e)}")
             self.initialized = False
 
     def store_sensor_data(self, farm_id, data):
-        """Lưu dữ liệu cảm biến vào blockchain"""
+        """Store sensor data into blockchain"""
         if not getattr(self, "initialized", False):
-            print("Blockchain chưa được khởi tạo")
+            print("Blockchain not initialized")
             return None
 
         try:
@@ -81,19 +81,19 @@ class BlockchainService:
             return tx_receipt.transactionHash.hex()
 
         except Exception as e:
-            print(f"Lỗi khi lưu dữ liệu vào blockchain: {str(e)}")
+            print(f"Error storing data into blockchain: {str(e)}")
             return None
 
     def get_sensor_data_by_farm_id(self, farm_id):
-        """Lấy dữ liệu cảm biến từ blockchain theo farm_id"""
+        """Get sensor data from blockchain by farm_id"""
         if not getattr(self, "initialized", False):
-            print("Blockchain chưa được khởi tạo")
+            print("Blockchain not initialized")
             return None
 
         try:
             raw_data = self.contract.functions.getDataByFarmId(farm_id).call()
             if not raw_data:
-                print(f"Không tìm thấy dữ liệu cho farm {farm_id}")
+                print(f"No data found for farm {farm_id}")
                 return None
 
             formatted_data = []
@@ -109,8 +109,8 @@ class BlockchainService:
                 }
                 formatted_data.append(formatted_item)
 
-            return formatted_data  # Trả về dữ liệu đã được định dạng
+            return formatted_data  # Return formatted data
 
         except Exception as e:
-            print(f"Lỗi khi lấy dữ liệu từ blockchain: {str(e)}")
+            print(f"Error getting data from blockchain: {str(e)}")
             return None

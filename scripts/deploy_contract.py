@@ -3,21 +3,19 @@ from os import path
 import requests
 from web3 import Web3
 
+
 class ContractOperationError(Exception):
     """Exception when the transaction declares the contract to be reversed"""
 
     pass
 
+
 # Connection and path configuration
 BESU_URL = "http://localhost:8545"
 ETHSIGNER_URL = "http://localhost:8555"
 base_dir = path.abspath(path.dirname(__file__))
-CONTRACT_JSON_PATH = path.join(
-    base_dir, "../contract/IoTStorage.json"
-)
-CONTRACT_ADDRESS_OUTPUT = path.join(
-    base_dir, "../contract/contract_address.json"
-)
+CONTRACT_JSON_PATH = path.join(base_dir, "../contract/IoTStorage.json")
+CONTRACT_ADDRESS_OUTPUT = path.join(base_dir, "../contract/contract_address.json")
 
 
 account_address_path = path.join(base_dir, "../scripts/account_info.json")
@@ -26,7 +24,9 @@ with open(account_address_path, "r") as f:
     DEPLOYER_ADDRESS = account_address_json["address"]
 
 GAS_LIMIT = 8000000
-GAS_PRICE = 0  # 0 Gwei for dev environment cloudflared tunnel --url http://localhost:5000
+GAS_PRICE = (
+    0  # 0 Gwei for dev environment cloudflared tunnel --url http://localhost:5000
+)
 
 
 def load_contract_data(json_path: str) -> tuple:
@@ -52,7 +52,7 @@ def connect_web3(provider_url: str) -> Web3:
 
 
 def build_deploy_transaction(
-        w3: Web3, contract_abi: dict, contract_bytecode: str, deployer: str, nonce: int
+    w3: Web3, contract_abi: dict, contract_bytecode: str, deployer: str, nonce: int
 ) -> dict:
     """Build contract deployment transaction."""
     contract = w3.eth.contract(abi=contract_abi, bytecode=contract_bytecode)

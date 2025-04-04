@@ -1,0 +1,40 @@
+/* Farm Data Page Styles */
+.sensor-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sensor-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 0;
+}
+
+.status-box {
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.blockchain-status {
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Data Table Styles */
+.sortable {
+    cursor: pointer;
+}
+
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sort-icon {
+    margin-left: 5px;
+}

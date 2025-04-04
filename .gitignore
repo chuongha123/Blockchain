@@ -36,3 +36,4 @@ Thumbs.db
 .idea/
 *.iml
 docker/besu-node/volume/
+node_modules/

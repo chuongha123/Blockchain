@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if user %}Edit User{% else %}Add New User{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>{% if user %}Edit User{% else %}Add New User{% endif %}</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="/admin/users-management" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to User List
+            </a>
+        </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" action="{% if user %}/admin/users/{{ user.id }}/edit{% else %}/admin/users/create{% endif %}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" value="{% if user %}{{ user.username }}{% endif %}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{% if user %}{{ user.email }}{% endif %}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        Password {% if user %}<small class="text-muted">(Leave blank to keep current password)</small>{% endif %}
+                    </label>
+                    <input type="password" class="form-control" id="password" name="password" {% if not user %}required{% endif %}>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="user" {% if user and user.role == "user" %}selected{% endif %}>User</option>
+                        <option value="admin" {% if user and user.role == "admin" %}selected{% endif %}>Admin</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="true" {% if not user or user.is_active %}checked{% endif %}>
+                    <label class="form-check-label" for="is_active">Active account</label>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 
+                        {% if user %}Update User{% else %}Create User{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,144 @@
+/* Admin styles */
+
+/* Sidebar */
+.admin-sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: #343a40;
+}
+
+.admin-sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+    border-radius: 0;
+}
+
+.admin-sidebar .nav-link:hover {
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.admin-sidebar .nav-link.active {
+    color: #fff;
+    background-color: #007bff;
+}
+
+.admin-sidebar .nav-link i {
+    width: 20px;
+    margin-right: 0.5rem;
+    text-align: center;
+}
+
+/* Admin content */
+.admin-content {
+    padding: 2rem;
+}
+
+/* Card customization */
+.card-admin {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-admin .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem;
+}
+
+.card-admin .card-body {
+    padding: 1.5rem;
+}
+
+/* Stats cards */
+.stats-card {
+    border-left: 4px solid #007bff;
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-card.primary {
+    border-left-color: #007bff;
+}
+
+.stats-card.success {
+    border-left-color: #28a745;
+}
+
+.stats-card.warning {
+    border-left-color: #ffc107;
+}
+
+.stats-card.danger {
+    border-left-color: #dc3545;
+}
+
+.stats-card .stats-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+/* Tables */
+.table-admin thead th {
+    border-top: none;
+    border-bottom-width: 1px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+/* Forms */
+.form-admin {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-admin .form-control {
+    border-radius: 0.25rem;
+}
+
+.form-admin .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Badges */
+.badge.bg-admin-primary {
+    background-color: #007bff;
+}
+
+.badge.bg-admin-success {
+    background-color: #28a745;
+}
+
+.badge.bg-admin-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge.bg-admin-danger {
+    background-color: #dc3545;
+}
+
+/* Pagination */
+.pagination-admin .page-item.active .page-link {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.pagination-admin .page-link {
+    color: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        min-height: auto;
+    }
+    
+    .admin-content {
+        padding: 1rem;
+    }
+} 
