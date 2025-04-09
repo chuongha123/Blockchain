@@ -1,7 +1,10 @@
 import os
-
+import datetime
 import qrcode
+from dotenv import load_dotenv
 
+# Load environment variables
+load_dotenv()
 
 class GenerateQRService:
     def generate_qr_code(seft, farm_id, base_url=os.getenv("PUBLIC_URL")):
@@ -18,10 +21,11 @@ class GenerateQRService:
         os.makedirs("app/static/qr_codes", exist_ok=True)
 
         # Lưu hình ảnh
-        file_path = f"app/static/qr_codes/qr_{farm_id}.png"
+        unique_id = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        file_path = f"app/static/qr_codes/qr_{farm_id}_{unique_id}.png"
         qr.save(file_path)
 
-        return f"qr_codes/qr_{farm_id}.png"
+        return f"qr_codes/qr_{farm_id}_{unique_id}.png"
 
     def generate_qr_home_page_code(seft):
         """Tạo mã QR cho trang chủ"""
