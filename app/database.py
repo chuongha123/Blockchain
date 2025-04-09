@@ -1,13 +1,11 @@
-from sqlalchemy import create_engine, event
+import os
+
+import pymysql
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.engine import Engine
-from sqlalchemy.exc import OperationalError
 from sqlalchemy.sql import text
-from dotenv import load_dotenv
-import os
-import pymysql
-import time
 
 load_dotenv()
 
@@ -44,8 +42,8 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,  # Check connection before using it
-    pool_recycle=3600,   # Recycle connections after 1 hour
-    echo=False           # Don't log SQL queries
+    pool_recycle=3600,  # Recycle connections after 1 hour
+    echo=False  # Don't log SQL queries
 )
 
 # Create session factory
@@ -53,6 +51,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create base class for models
 Base = declarative_base()
+
 
 # Dependency to get DB session
 def get_db():

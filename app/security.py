@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status, Cookie, Request
+
+from fastapi import Depends, HTTPException, status, Request
+from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 from fastapi.security import OAuth2
 from fastapi.security.utils import get_authorization_scheme_param
-from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
-from starlette.status import HTTP_401_UNAUTHORIZED
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.database import get_db
 from app.model.user import User, TokenData
@@ -95,7 +96,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+        token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     """Get the current user from JWT token"""
     credentials_exception = HTTPException(
@@ -118,7 +119,7 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+        token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ):
     """Get the current user without raising an exception if not authenticated"""
     if token is None:
