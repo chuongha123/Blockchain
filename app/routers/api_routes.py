@@ -39,9 +39,7 @@ async def get_farm_data(
 
 
 @router.post("/farm")
-async def store_farm_data(
-    data: FarmData, current_user: User = Depends(get_current_active_user)
-):
+async def store_farm_data(data: FarmData):
     """API stores sensor data into blockchain - Requires authentication"""
     try:
         # Prepare data to store into blockchain
