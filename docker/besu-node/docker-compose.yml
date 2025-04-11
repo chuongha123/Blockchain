@@ -21,9 +21,9 @@ services:
       --miner-coinbase=0x73682E80eAeB9A7c65b67c318cCc07C227748aE0
 #      --genesis-file=/config/genesis.json
     volumes:
-      - /Users/huyhanhat/Documents/My_Projects/study/Blockchain/docker/besu-node/volume:/var/lib/besu
-      - /Users/huyhanhat/Documents/My_Projects/study/Blockchain/scripts/besu_key.txt:/keys/besu_key.txt:ro
-      # - ${PWD}/docker/besu-node/config/genesis.json:/config/genesis.json:ro
+      - ./volume:/var/lib/besu
+      - ../../scripts/besu_key.txt:/keys/besu_key.txt:ro
+      # - ./config/genesis.json:/config/genesis.json:ro
 
   ethsigner:
     image: consensys/ethsigner:latest
@@ -39,8 +39,8 @@ services:
       --downstream-http-port=8545
       file-based-signer -k /opt/ethsigner/keyfile -p /opt/ethsigner/passwordfile
     volumes:
-      - /Users/huyhanhat/Documents/My_Projects/study/Blockchain/scripts/keystore.json:/opt/ethsigner/keyfile:ro
-      - /Users/huyhanhat/Documents/My_Projects/study/Blockchain/scripts/password.txt:/opt/ethsigner/passwordfile:ro
+      - ../../scripts/keystore.json:/opt/ethsigner/keyfile:ro
+      - ../../scripts/password.txt:/opt/ethsigner/passwordfile:ro
     depends_on:
       - besu
 volumes:
