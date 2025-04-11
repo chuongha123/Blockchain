@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 
@@ -77,3 +77,10 @@ def login_for_access_token(
 def read_users_me(current_user: User = Depends(get_current_active_user)):
     """Get current user information"""
     return current_user
+
+
+@router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(response: Response, current_user: User = Depends(get_current_active_user)):
+    """Logout user by clearing cookies"""
+    response.delete_cookie(key="access_token")
+    return {"detail": "Successfully logged out"}

@@ -24,6 +24,80 @@ async def get_users(
     users = db.query(User).all()
     return users
 
+# Create user routes - These need to come BEFORE the parameterized routes
+@router.get("/users/create", response_class=HTMLResponse)
+async def create_user_form(
+    request: Request, 
+    current_user: User = Depends(check_admin_role)
+):
+    """Form create user - Only admin can access"""
+    return templates.TemplateResponse(
+        "admin/user_form.html", 
+        {"request": request, "current_user": current_user, "user": None}
+    )
+
+@router.post("/users/create", response_class=HTMLResponse)
+async def create_user_submit(
+    request: Request,
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    role: str = Form(...),
+    is_active: bool = Form(True),
+    link_product: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(check_admin_role)
+):
+    """Process create user - Only admin can access"""
+    # Check username and email
+    db_user_by_username = db.query(User).filter(User.username == username).first()
+    if db_user_by_username:
+        return templates.TemplateResponse(
+            "admin/user_form.html",
+            {
+                "request": request, 
+                "current_user": current_user, 
+                "user": None,
+                "error": "Username is exist"
+            },
+            status_code=400
+        )
+    
+    db_user_by_email = db.query(User).filter(User.email == email).first()
+    if db_user_by_email:
+        return templates.TemplateResponse(
+            "admin/user_form.html",
+            {
+                "request": request, 
+                "current_user": current_user, 
+                "user": None,
+                "error": "Email is exist"
+            },
+            status_code=400
+        )
+    
+    # Create new user
+    hashed_password = get_password_hash(password)
+    db_user = User(
+        username=username,
+        email=email,
+        hashed_password=hashed_password,
+        is_active=is_active,
+        role=role,
+        link_product=link_product
+    )
+    
+    # Save to database
+    db.add(db_user)
+    db.commit()
+    
+    # Redirect to users management page
+    return RedirectResponse(
+        url="/admin/users-management",
+        status_code=status.HTTP_303_SEE_OTHER
+    )
+
+# Now the parameterized routes
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(
     user_id: int, 
@@ -148,78 +222,6 @@ async def users_management(
     return templates.TemplateResponse(
         "admin/users.html", 
         {"request": request, "current_user": current_user, "users": users}
-    )
-
-@router.get("/users/create", response_class=HTMLResponse)
-async def create_user_form(
-    request: Request, 
-    current_user: User = Depends(check_admin_role)
-):
-    """Form create user - Only admin can access"""
-    return templates.TemplateResponse(
-        "admin/user_form.html", 
-        {"request": request, "current_user": current_user, "user": None}
-    )
-
-@router.post("/users/create", response_class=HTMLResponse)
-async def create_user_submit(
-    request: Request,
-    username: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...),
-    role: str = Form(...),
-    is_active: bool = Form(True),
-    link_product: Optional[str] = Form(None),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(check_admin_role)
-):
-    """Process create user - Only admin can access"""
-    # Check username and email
-    db_user_by_username = db.query(User).filter(User.username == username).first()
-    if db_user_by_username:
-        return templates.TemplateResponse(
-            "admin/user_form.html",
-            {
-                "request": request, 
-                "current_user": current_user, 
-                "user": None,
-                "error": "Username is exist"
-            },
-            status_code=400
-        )
-    
-    db_user_by_email = db.query(User).filter(User.email == email).first()
-    if db_user_by_email:
-        return templates.TemplateResponse(
-            "admin/user_form.html",
-            {
-                "request": request, 
-                "current_user": current_user, 
-                "user": None,
-                "error": "Email is exist"
-            },
-            status_code=400
-        )
-    
-    # Create new user
-    hashed_password = get_password_hash(password)
-    db_user = User(
-        username=username,
-        email=email,
-        hashed_password=hashed_password,
-        is_active=is_active,
-        role=role,
-        link_product=link_product
-    )
-    
-    # Save to database
-    db.add(db_user)
-    db.commit()
-    
-    # Redirect to users management page
-    return RedirectResponse(
-        url="/admin/users-management",
-        status_code=status.HTTP_303_SEE_OTHER
     )
 
 @router.get("/users/{user_id}/edit", response_class=HTMLResponse)

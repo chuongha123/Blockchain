@@ -61,12 +61,35 @@
         document.addEventListener('DOMContentLoaded', function() {
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', function() {
-                    // Clear tokens from localStorage
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('token_type');
-                    // Reload page
-                    window.location.reload();
+                logoutBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    
+                    try {
+                        // Call the logout API endpoint
+                        const token = localStorage.getItem('access_token');
+                        await fetch('/auth/logout', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        // Clear tokens from localStorage
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('token_type');
+                        
+                        // Clear any cookies
+                        document.cookie = "access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        
+                        // Redirect to home page
+                        window.location.href = '/';
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        // If API call fails, still try to logout client-side
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('token_type');
+                        window.location.href = '/';
+                    }
                 });
             }
         });
