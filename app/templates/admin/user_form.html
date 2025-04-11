@@ -50,6 +50,11 @@
                         <option value="admin" {% if user and user.role == "admin" %}selected{% endif %}>Admin</option>
                     </select>
                 </div>
+
+                <div class="mb-3">
+                    <label for="link_product" class="form-label">Link Product</label>
+                    <input type="text" class="form-control" id="link_product" name="link_product" value="{% if user %}{{ user.link_product }}{% endif %}">
+                </div>
                 
                 <div class="mb-3 form-check">
                     <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="true" {% if not user or user.is_active %}checked{% endif %}>

@@ -169,6 +169,7 @@ async def create_user_submit(
     password: str = Form(...),
     role: str = Form(...),
     is_active: bool = Form(True),
+    link_product: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
@@ -207,7 +208,8 @@ async def create_user_submit(
         email=email,
         hashed_password=hashed_password,
         is_active=is_active,
-        role=role
+        role=role,
+        link_product=link_product
     )
     
     # Lưu vào database
@@ -255,6 +257,7 @@ async def edit_user_submit(
     password: Optional[str] = Form(None),
     role: str = Form(...),
     is_active: bool = Form(True),
+    link_product: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
@@ -307,6 +310,7 @@ async def edit_user_submit(
     db_user.email = email
     db_user.is_active = is_active
     db_user.role = role
+    db_user.link_product = link_product
     
     # Cập nhật mật khẩu nếu có
     if password:
