@@ -11,7 +11,7 @@ load_dotenv()
 
 # Get database connection parameters
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "farmdb")
@@ -35,8 +35,8 @@ except Exception as e:
     print(f"Warning: Could not create database: {e}")
     print("Using SQLAlchemy with existing database configuration")
 
-# Now connect with the database specified
-DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# Use the pre-defined DATABASE_URL from .env which has proper URL encoding
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Create SQLAlchemy engine with a pool of connections
 engine = create_engine(
