@@ -56,11 +56,18 @@ def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """Login and get JWT token"""
-    user = authenticate_user(db, form_data.username, form_data.password)
-    if not user:
+    user, error = authenticate_user(db, form_data.username, form_data.password)
+
+    if error:
+        error_messages = {
+            "not_found": "Incorrect username or password",
+            "invalid_password": "Incorrect username or password",
+            "inactive": "Your account is inactivated",
+        }
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail=error_messages.get(error, "Authentication failed"),
             headers={"WWW-Authenticate": "Bearer"},
         )
 

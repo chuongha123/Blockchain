@@ -75,10 +75,12 @@ def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user"""
     user = db.query(User).filter(User.username == username).first()
     if not user:
-        return False
+        return None, "not_found"
     if not verify_password(password, user.hashed_password):
-        return False
-    return user
+        return None, "invalid_password"
+    if not user.is_active:
+        return None, "inactive"
+    return user, None
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):

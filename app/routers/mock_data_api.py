@@ -1,8 +1,10 @@
 import random
 import string
+import time
+from datetime import datetime, timedelta
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.blockchain import BlockchainService
 from app.model.farm_data import FarmData
@@ -14,6 +16,13 @@ router = APIRouter(prefix="/api/mock", tags=["mock"])
 
 # Initialize blockchain service
 blockchain_service = BlockchainService()
+
+
+def generate_random_product_id(prefix="PROD", length=8):
+    """Generate random product ID"""
+    chars = string.ascii_uppercase + string.digits
+    random_part = ''.join(random.choice(chars) for _ in range(length))
+    return f"{prefix}-{random_part}"
 
 
 class MockDataRequest(BaseModel):

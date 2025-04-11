@@ -18,25 +18,30 @@ from app.generate_qr import GenerateQRService
 blockchain_service = BlockchainService()
 generate_qr_service = GenerateQRService()
 
+
 class ContactForm(BaseModel):
     name: str
     email: str
     message: str
 
+
 @router.get("/farm/{farm_id}")
-async def get_farm_data(farm_id: str, current_user: User = Depends(get_current_active_user)):
+async def get_farm_data(
+    farm_id: str, current_user: User = Depends(get_current_active_user)
+):
     """API returns farm data in JSON format - Requires authentication"""
     data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
 
     if not data:
-        raise HTTPException(
-            status_code=404, detail=f"No data found for farm {farm_id}"
-        )
+        raise HTTPException(status_code=404, detail=f"No data found for farm {farm_id}")
 
     return data
 
+
 @router.post("/farm")
-async def store_farm_data(data: FarmData, current_user: User = Depends(get_current_active_user)):
+async def store_farm_data(
+    data: FarmData, current_user: User = Depends(get_current_active_user)
+):
     """API stores sensor data into blockchain - Requires authentication"""
     try:
         # Prepare data to store into blockchain
@@ -50,7 +55,9 @@ async def store_farm_data(data: FarmData, current_user: User = Depends(get_curre
         }
 
         # Call service to store data
-        tx_hash = blockchain_service.store_sensor_data(farm_payload.get("farm_id"), farm_payload)
+        tx_hash = blockchain_service.store_sensor_data(
+            farm_payload.get("farm_id"), farm_payload
+        )
 
         if not tx_hash:
             raise HTTPException(
@@ -68,9 +75,8 @@ async def store_farm_data(data: FarmData, current_user: User = Depends(get_curre
 
     except Exception as e:
         # Handle other errors
-        raise HTTPException(
-            status_code=500, detail=f"Error storing data: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Error storing data: {str(e)}")
+
 
 @router.post("/send-contact")
 async def send_contact_email(contact: ContactForm):
@@ -79,7 +85,7 @@ async def send_contact_email(contact: ContactForm):
     from email.mime.text import MIMEText
     from email.mime.multipart import MIMEMultipart
     import os
-    
+
     try:
         # Get email configuration from environment variables
         EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
@@ -87,26 +93,28 @@ async def send_contact_email(contact: ContactForm):
         EMAIL_USERNAME = os.getenv("EMAIL_USERNAME", "")
         EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "")
         EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER", "")
-        
+
         # Check email configuration
-        if not all([EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]):
+        if not all(
+            [EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]
+        ):
             return {
                 "success": False,
-                "message": "Email server not configured. Please contact administrator."
+                "message": "Email server not configured. Please contact administrator.",
             }
-        
+
         # Create email content
         subject = f"New contact from {contact.name}"
-        
+
         # Create email message
         msg = MIMEMultipart()
-        msg['From'] = EMAIL_USERNAME
-        msg['To'] = EMAIL_RECEIVER
-        msg['Subject'] = subject
-        
+        msg["From"] = EMAIL_USERNAME
+        msg["To"] = EMAIL_RECEIVER
+        msg["Subject"] = subject
+
         # Optionally add Reply-To to allow recipient to reply to sender
-        msg['Reply-To'] = contact.email
-        
+        msg["Reply-To"] = contact.email
+
         # Email content
         body = f"""
         <html>
@@ -119,22 +127,19 @@ async def send_contact_email(contact: ContactForm):
         </body>
         </html>
         """
-        
-        msg.attach(MIMEText(body, 'html'))
-        
+
+        msg.attach(MIMEText(body, "html"))
+
         # Send email
         with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
             server.starttls()
             server.login(EMAIL_USERNAME, EMAIL_PASSWORD)
             server.send_message(msg)
-        
+
         return {
             "success": True,
-            "message": "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất."
+            "message": "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
         }
-        
+
     except Exception as e:
-        return {
-            "success": False,
-            "message": f"Không thể gửi email: {str(e)}"
-        } 
+        return {"success": False, "message": f"Không thể gửi email: {str(e)}"}

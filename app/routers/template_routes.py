@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.security import get_optional_user
+from app.security import get_optional_user, get_current_active_user
 from app.model.user import User
 
 # Initialize templates router
@@ -33,10 +33,22 @@ async def register_page(request: Request):
 
 
 @router.get("/farm/{farm_id}", response_class=HTMLResponse)
-async def farm_data(request: Request, farm_id: str):
-    """Display farm information by device_id"""
+async def farm_data(
+    request: Request, farm_id: str, current_user: User = Depends(get_optional_user)
+):
+    """Display farm information by device_id - Requires authentication"""
     # Import here to avoid circular import
     from app.blockchain import BlockchainService
+
+    if not current_user or not current_user.is_active:
+        return templates.TemplateResponse(
+            "error.html",
+            {
+                "request": request,
+                "current_user": current_user,
+                "error": "You are not active user",
+            },
+        )
 
     blockchain_service = BlockchainService()
 
@@ -48,11 +60,18 @@ async def farm_data(request: Request, farm_id: str):
             "error.html",
             {
                 "request": request,
+                "current_user": current_user,
                 "error": f"No data found for device {farm_id}",
             },
         )
 
     # Return template with data
     return templates.TemplateResponse(
-        "farm_data.html", {"request": request, "farm_id": farm_id, "data": data}
+        "farm_data.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "farm_id": farm_id,
+            "data": data,
+        },
     )
