@@ -8,19 +8,19 @@ from app.database import get_db
 from app.model.user import User, UserResponse, UserCreate, UserUpdate
 from app.security import check_admin_role, get_password_hash
 
-# Khởi tạo router cho admin
+# Initialize router for admin
 router = APIRouter(prefix="/admin", tags=["admin"])
 
-# Khởi tạo templates
+# Initialize templates
 templates = Jinja2Templates(directory="app/templates")
 
-# API routes cho quản lý user
+# API routes for user management
 @router.get("/users", response_model=List[UserResponse])
 async def get_users(
     db: Session = Depends(get_db), 
     current_user: User = Depends(check_admin_role)
 ):
-    """Lấy danh sách tất cả người dùng - Chỉ admin mới có quyền truy cập"""
+    """Get all users - Only admin can access"""
     users = db.query(User).all()
     return users
 
@@ -30,10 +30,10 @@ async def get_user(
     db: Session = Depends(get_db), 
     current_user: User = Depends(check_admin_role)
 ):
-    """Lấy thông tin một người dùng theo ID - Chỉ admin mới có quyền truy cập"""
+    """Get user info by ID - Only admin can access"""
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
+        raise HTTPException(status_code=404, detail="User not found")
     return user
 
 @router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -42,29 +42,29 @@ async def create_user(
     db: Session = Depends(get_db), 
     current_user: User = Depends(check_admin_role)
 ):
-    """Tạo người dùng mới - Chỉ admin mới có quyền truy cập"""
-    # Kiểm tra username đã tồn tại chưa
+    """Create new user - Only admin can access"""
+    # Check username is exist
     db_user = db.query(User).filter(User.username == user.username).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Tên đăng nhập đã tồn tại")
+        raise HTTPException(status_code=400, detail="Username is exist")
     
-    # Kiểm tra email đã tồn tại chưa
+    # Check email is exist
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email đã tồn tại")
+        raise HTTPException(status_code=400, detail="Email is exist")
     
-    # Mã hóa mật khẩu
+    # Hash password
     hashed_password = get_password_hash(user.password)
     
-    # Tạo user mới
+    # Create new user
     db_user = User(
         username=user.username,
         email=user.email,
         hashed_password=hashed_password,
-        role="user"  # Mặc định là user
+        role="user"  # Default is user
     )
     
-    # Lưu vào database
+    # Save to database
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -78,26 +78,26 @@ async def update_user(
     db: Session = Depends(get_db), 
     current_user: User = Depends(check_admin_role)
 ):
-    """Cập nhật thông tin người dùng - Chỉ admin mới có quyền truy cập"""
-    # Tìm user cần update
+    """Update user info - Only admin can access"""
+    # Find user to update
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
-        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
+        raise HTTPException(status_code=404, detail="User not found")
     
-    # Cập nhật các trường nếu có trong request
+    # Update fields if have in request
     update_data = user_update.dict(exclude_unset=True)
     
-    # Nếu có password, mã hóa trước khi lưu
+    # If have password, hash before save
     if "password" in update_data and update_data["password"]:
         update_data["hashed_password"] = get_password_hash(update_data["password"])
         del update_data["password"]
     
-    # Cập nhật dữ liệu
+    # Update data
     for key, value in update_data.items():
         if hasattr(db_user, key) and value is not None:
             setattr(db_user, key, value)
     
-    # Lưu vào database
+    # Save to database
     db.commit()
     db.refresh(db_user)
     
@@ -109,17 +109,17 @@ async def delete_user(
     db: Session = Depends(get_db), 
     current_user: User = Depends(check_admin_role)
 ):
-    """Xóa người dùng - Chỉ admin mới có quyền truy cập"""
-    # Không cho phép admin tự xóa chính mình
+    """Delete user - Only admin can access"""
+    # Cannot delete yourself
     if current_user.id == user_id:
-        raise HTTPException(status_code=400, detail="Không thể xóa tài khoản của chính mình")
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
     
-    # Tìm user cần xóa
+    # Find user to delete
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
-        raise HTTPException(status_code=404, detail="Không tìm thấy người dùng")
+        raise HTTPException(status_code=404, detail="User not found")
     
-    # Xóa khỏi database
+    # Delete from database
     db.delete(db_user)
     db.commit()
     
@@ -131,7 +131,7 @@ async def admin_dashboard(
     request: Request, 
     current_user: User = Depends(check_admin_role)
 ):
-    """Trang dashboard admin - Chỉ admin mới có quyền truy cập"""
+    """Admin dashboard page - Only admin can access"""
     return templates.TemplateResponse(
         "admin/dashboard.html", 
         {"request": request, "current_user": current_user}
@@ -143,7 +143,7 @@ async def users_management(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
-    """Trang quản lý người dùng - Chỉ admin mới có quyền truy cập"""
+    """Users management page - Only admin can access"""
     users = db.query(User).all()
     return templates.TemplateResponse(
         "admin/users.html", 
@@ -155,7 +155,7 @@ async def create_user_form(
     request: Request, 
     current_user: User = Depends(check_admin_role)
 ):
-    """Form tạo người dùng mới - Chỉ admin mới có quyền truy cập"""
+    """Form create user - Only admin can access"""
     return templates.TemplateResponse(
         "admin/user_form.html", 
         {"request": request, "current_user": current_user, "user": None}
@@ -173,8 +173,8 @@ async def create_user_submit(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
-    """Xử lý form tạo người dùng mới - Chỉ admin mới có quyền truy cập"""
-    # Kiểm tra username và email
+    """Process create user - Only admin can access"""
+    # Check username and email
     db_user_by_username = db.query(User).filter(User.username == username).first()
     if db_user_by_username:
         return templates.TemplateResponse(
@@ -183,7 +183,7 @@ async def create_user_submit(
                 "request": request, 
                 "current_user": current_user, 
                 "user": None,
-                "error": "Tên đăng nhập đã tồn tại"
+                "error": "Username is exist"
             },
             status_code=400
         )
@@ -196,12 +196,12 @@ async def create_user_submit(
                 "request": request, 
                 "current_user": current_user, 
                 "user": None,
-                "error": "Email đã tồn tại"
+                "error": "Email is exist"
             },
             status_code=400
         )
     
-    # Tạo người dùng mới
+    # Create new user
     hashed_password = get_password_hash(password)
     db_user = User(
         username=username,
@@ -212,11 +212,11 @@ async def create_user_submit(
         link_product=link_product
     )
     
-    # Lưu vào database
+    # Save to database
     db.add(db_user)
     db.commit()
     
-    # Chuyển về trang quản lý người dùng
+    # Redirect to users management page
     return RedirectResponse(
         url="/admin/users-management",
         status_code=status.HTTP_303_SEE_OTHER
@@ -229,8 +229,8 @@ async def edit_user_form(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
-    """Form chỉnh sửa người dùng - Chỉ admin mới có quyền truy cập"""
-    # Tìm user cần chỉnh sửa
+    """Form edit user - Only admin can access"""
+    # Find user to edit
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return templates.TemplateResponse(
@@ -238,7 +238,7 @@ async def edit_user_form(
             {
                 "request": request, 
                 "current_user": current_user,
-                "error": "Không tìm thấy người dùng"
+                "error": "User not found"
             },
             status_code=404
         )
@@ -261,8 +261,8 @@ async def edit_user_submit(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
-    """Xử lý form chỉnh sửa người dùng - Chỉ admin mới có quyền truy cập"""
-    # Tìm user cần update
+    """Process edit user - Only admin can access"""
+    # Find user to update
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         return templates.TemplateResponse(
@@ -270,12 +270,12 @@ async def edit_user_submit(
             {
                 "request": request, 
                 "current_user": current_user,
-                "error": "Không tìm thấy người dùng"
+                "error": "User not found"
             },
             status_code=404
         )
     
-    # Kiểm tra username đã tồn tại chưa (nếu thay đổi)
+    # Check username is exist in database
     if username != db_user.username:
         db_user_by_username = db.query(User).filter(User.username == username).first()
         if db_user_by_username:
@@ -285,12 +285,12 @@ async def edit_user_submit(
                     "request": request, 
                     "current_user": current_user, 
                     "user": db_user,
-                    "error": "Tên đăng nhập đã tồn tại"
+                    "error": "Username is exist"
                 },
                 status_code=400
             )
     
-    # Kiểm tra email đã tồn tại chưa (nếu thay đổi)
+    # Check email is exist in database
     if email != db_user.email:
         db_user_by_email = db.query(User).filter(User.email == email).first()
         if db_user_by_email:
@@ -300,26 +300,26 @@ async def edit_user_submit(
                     "request": request, 
                     "current_user": current_user, 
                     "user": db_user,
-                    "error": "Email đã tồn tại"
+                    "error": "Email is exist"
                 },
                 status_code=400
             )
     
-    # Cập nhật thông tin
+    # Update user info
     db_user.username = username
     db_user.email = email
     db_user.is_active = is_active
     db_user.role = role
     db_user.link_product = link_product
     
-    # Cập nhật mật khẩu nếu có
+    # Update password if have
     if password:
         db_user.hashed_password = get_password_hash(password)
     
-    # Lưu vào database
+    # Save to database
     db.commit()
     
-    # Chuyển về trang quản lý người dùng
+    # Redirect to users management page
     return RedirectResponse(
         url="/admin/users-management",
         status_code=status.HTTP_303_SEE_OTHER
@@ -332,8 +332,8 @@ async def delete_user_confirm(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
-    """Xác nhận xóa người dùng - Chỉ admin mới có quyền truy cập"""
-    # Tìm user cần xóa
+    """Confirm delete user - Only admin can access"""
+    # Find user to delete
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         return templates.TemplateResponse(
@@ -346,14 +346,14 @@ async def delete_user_confirm(
             status_code=404
         )
     
-    # Không cho phép admin tự xóa chính mình
+    # Cannot delete yourself
     if current_user.id == user_id:
         return templates.TemplateResponse(
             "admin/error.html",
             {
                 "request": request, 
                 "current_user": current_user,
-                "error": "Không thể xóa tài khoản của chính mình"
+                "error": "Cannot delete your own account"
             },
             status_code=400
         )
@@ -370,20 +370,20 @@ async def delete_user_submit(
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role)
 ):
-    """Xử lý xóa người dùng - Chỉ admin mới có quyền truy cập"""
-    # Không cho phép admin tự xóa chính mình
+    """Process delete user - Only admin can access"""
+    # Cannot delete yourself
     if current_user.id == user_id:
         return templates.TemplateResponse(
             "admin/error.html",
             {
                 "request": request, 
                 "current_user": current_user,
-                "error": "Không thể xóa tài khoản của chính mình"
+                "error": "Cannot delete your own account"
             },
             status_code=400
         )
     
-    # Tìm user cần xóa
+    # Find user to delete
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         return templates.TemplateResponse(
@@ -391,16 +391,16 @@ async def delete_user_submit(
             {
                 "request": request, 
                 "current_user": current_user,
-                "error": "Không tìm thấy người dùng"
+                "error": "User not found"
             },
             status_code=404
         )
     
-    # Xóa khỏi database
+    # Delete from database
     db.delete(db_user)
     db.commit()
     
-    # Chuyển về trang quản lý người dùng
+    # Redirect to users management page
     return RedirectResponse(
         url="/admin/users-management",
         status_code=status.HTTP_303_SEE_OTHER

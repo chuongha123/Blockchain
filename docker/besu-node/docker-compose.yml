@@ -30,7 +30,7 @@ services:
     platform: linux/amd64
     container_name: ethsigner
     ports:
-      - "8555:8545"  # EthSigner container lắng nghe trên cổng 8545, ánh xạ ra cổng 8555 trên host
+      - "8555:8545"  # EthSigner container listens on port 8545, mapped to port 8555 on the host
     command: >
       --chain-id=1337
       --http-listen-host=0.0.0.0

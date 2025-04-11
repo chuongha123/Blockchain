@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from alembic import context
 from dotenv import load_dotenv
 
-# Thêm thư mục gốc vào sys.path để có thể import các module từ app
+# Add root directory to sys.path to import modules from app
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Load environment variables from .env file
@@ -25,14 +25,14 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Lấy thông tin kết nối database từ biến môi trường
+# Get database connection info from environment variables
 db_user = os.getenv("DB_USER", "root")
 db_password = os.getenv("DB_PASSWORD", "root")
 db_host = os.getenv("DB_HOST", "localhost")
 db_port = os.getenv("DB_PORT", "3306")
 db_name = os.getenv("DB_NAME", "farmdb")
 
-# Mã hóa mật khẩu để an toàn cho URL
+# Encode password for URL safety
 encoded_password = urllib.parse.quote_plus(db_password)
 db_url = f"mysql+pymysql://{db_user}:{encoded_password}@{db_host}:{db_port}/{db_name}"
 
@@ -78,7 +78,7 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    # Tạo engine trực tiếp thay vì dùng config
+    # Create engine directly instead of using config
     connectable = create_engine(db_url)
 
     with connectable.connect() as connection:

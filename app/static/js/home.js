@@ -156,7 +156,7 @@ if (contactForm) {
         submitSpinner.classList.remove('d-none');
         formResult.innerHTML = '';
 
-        // Lấy dữ liệu form
+        // Get form data
         const formData = {
             name: document.getElementById('name').value.trim(),
             email: document.getElementById('email').value.trim(),

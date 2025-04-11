@@ -1,4 +1,4 @@
-"""Tạo bảng users
+"""Create users table
 
 Revision ID: 20230701_create_users_table
 Revises: 
@@ -18,13 +18,13 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # Kiểm tra xem bảng users đã tồn tại chưa
+    # Check if users table already exists
     conn = op.get_bind()
     inspector = sa.inspect(conn)
     tables = inspector.get_table_names()
     
     if 'users' not in tables:
-        print("Đang tạo bảng users...")
+        print("Creating users table...")
         op.create_table(
             'users',
             sa.Column('id', sa.Integer, primary_key=True, index=True),
@@ -37,9 +37,9 @@ def upgrade() -> None:
             sa.Column('created_at', sa.DateTime, server_default=func.now()),
             sa.Column('updated_at', sa.DateTime, server_default=func.now(), onupdate=func.now())
         )
-        print("Bảng users đã được tạo thành công!")
+        print("Users table created successfully!")
     else:
-        print("Bảng users đã tồn tại, bỏ qua bước tạo bảng.")
+        print("Users table already exists, skipping table creation.")
 
 
 def downgrade() -> None:

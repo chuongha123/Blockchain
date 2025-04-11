@@ -1,45 +1,45 @@
 #!/usr/bin/env python3
-"""Script hỗ trợ quản lý database migration"""
+"""Script to manage database migration"""
 
 import argparse
 import os
 import subprocess
 
 def run_command(command):
-    """Chạy lệnh shell và in kết quả"""
-    print(f"Đang chạy: {command}")
+    """Run shell command and print the results"""
+    print(f"Running: {command}")
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     if result.stdout:
         print(result.stdout)
     if result.stderr:
-        print(f"Lỗi: {result.stderr}")
+        print(f"Error: {result.stderr}")
     return result.returncode
 
 def main():
-    """Hàm chính để xử lý các lệnh migration"""
-    parser = argparse.ArgumentParser(description="Công cụ quản lý database migration")
+    """Main function to handle migration commands"""
+    parser = argparse.ArgumentParser(description="Database migration management tool")
     
-    subparsers = parser.add_subparsers(dest="command", help="Các lệnh migration")
+    subparsers = parser.add_subparsers(dest="command", help="Migration commands")
     
-    # Lệnh tạo migration
-    create_parser = subparsers.add_parser("create", help="Tạo migration mới")
-    create_parser.add_argument("message", help="Mô tả migration")
-    create_parser.add_argument("--auto", action="store_true", help="Tự động sinh migration dựa trên model")
+    # Create migration command
+    create_parser = subparsers.add_parser("create", help="Create new migration")
+    create_parser.add_argument("message", help="Migration description")
+    create_parser.add_argument("--auto", action="store_true", help="Auto-generate migration based on model")
     
-    # Lệnh cập nhật
-    upgrade_parser = subparsers.add_parser("upgrade", help="Cập nhật database")
-    upgrade_parser.add_argument("revision", nargs="?", default="head", help="Phiên bản để cập nhật tới (mặc định: head)")
+    # Update command
+    upgrade_parser = subparsers.add_parser("upgrade", help="Update database")
+    upgrade_parser.add_argument("revision", nargs="?", default="head", help="Version to upgrade to (default: head)")
     
-    # Lệnh quay lại
-    downgrade_parser = subparsers.add_parser("downgrade", help="Hạ cấp database")
-    downgrade_parser.add_argument("revision", help="Phiên bản để quay lại, hoặc số lượng revision để lùi (ví dụ: -1)")
+    # Rollback command
+    downgrade_parser = subparsers.add_parser("downgrade", help="Downgrade database")
+    downgrade_parser.add_argument("revision", help="Version to roll back to, or number of revisions to go back (e.g.: -1)")
     
-    # Lệnh xem lịch sử
-    history_parser = subparsers.add_parser("history", help="Xem lịch sử migration")
-    history_parser.add_argument("--verbose", action="store_true", help="Hiển thị chi tiết")
+    # View history command
+    history_parser = subparsers.add_parser("history", help="View migration history")
+    history_parser.add_argument("--verbose", action="store_true", help="Show details")
     
-    # Lệnh kiểm tra phiên bản hiện tại
-    subparsers.add_parser("current", help="Hiển thị phiên bản hiện tại")
+    # Check current version command
+    subparsers.add_parser("current", help="Show current version")
     
     args = parser.parse_args()
     
@@ -47,7 +47,7 @@ def main():
         parser.print_help()
         return
     
-    # Xử lý các lệnh
+    # Process commands
     if args.command == "create":
         auto_flag = "--autogenerate" if args.auto else ""
         run_command(f"alembic revision {auto_flag} -m \"{args.message}\"")
