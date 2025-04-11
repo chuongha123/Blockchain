@@ -15,6 +15,20 @@
         <!-- Custom CSS -->
         <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}" />
         <link rel="stylesheet" href="{{ url_for('static', path='/css/farm_data.css') }}" />
+        
+        <!-- Cấu hình để Chart.js hoạt động tốt hơn -->
+        <style>
+            .chart-container {
+                position: relative;
+                height: 400px;
+                width: 100%;
+            }
+            #farmDataChart {
+                display: block;
+                width: 100% !important;
+                height: 100% !important;
+            }
+        </style>
     </head>
     <body>
         <div class="container mt-4">
@@ -24,44 +38,114 @@
                 </div>
 
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="farmDataTable" class="table table-striped table-bordered">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th class="sortable" data-sort="timestamp">
-                                        Thời gian <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="sortable" data-sort="farmId">
-                                        Nông trại ID <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="sortable" data-sort="temperature">
-                                        Nhiệt độ (°C) <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="sortable" data-sort="humidity">
-                                        Độ ẩm (%) <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="sortable" data-sort="waterLevel">
-                                        Độ ẩm đất (%) <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="sortable" data-sort="lightLevel">
-                                        Độ sáng (%) <span class="sort-icon"></span>
-                                    </th>
-                                    <th class="sortable" data-sort="productId">
-                                        Sản phẩm ID <span class="sort-icon"></span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="dataTableBody">
-                                <!-- Data will be populated by JavaScript -->
-                            </tbody>
-                        </table>
+                    <!-- Filter and View Controls -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Lọc dữ liệu</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <label for="startDate" class="form-label">Từ ngày</label>
+                                            <input type="date" class="form-control" id="startDate">
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <label for="endDate" class="form-label">Đến ngày</label>
+                                            <input type="date" class="form-control" id="endDate">
+                                        </div>
+                                    </div>
+                                    <button id="applyFilter" class="btn btn-success mt-2">
+                                        <i class="bi bi-funnel"></i> Áp dụng bộ lọc
+                                    </button>
+                                    <button id="resetFilter" class="btn btn-outline-secondary mt-2">
+                                        <i class="bi bi-x-circle"></i> Xóa bộ lọc
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Chế độ hiển thị</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="btn-group" role="group" aria-label="View mode">
+                                        <button type="button" class="btn btn-success active" id="tableViewBtn">
+                                            <i class="bi bi-table"></i> Bảng
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success" id="chartViewBtn">
+                                            <i class="bi bi-graph-up"></i> Biểu đồ
+                                        </button>
+                                    </div>
+                                    <div class="form-group mt-3" id="chartTypeContainer" style="display: none;">
+                                        <label for="chartType" class="form-label">Loại biểu đồ:</label>
+                                        <select class="form-select" id="chartType">
+                                            <option value="all">Tất cả các dữ liệu</option>
+                                            <option value="temperature">Nhiệt độ</option>
+                                            <option value="humidity">Độ ẩm</option>
+                                            <option value="waterLevel">Độ ẩm đất</option>
+                                            <option value="lightLevel">Độ sáng</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        <!-- Pagination -->
-                        <nav aria-label="Phân trang dữ liệu nông trại">
-                            <ul id="pagination" class="pagination justify-content-center">
-                                <!-- Pagination controls will be populated by JavaScript -->
-                            </ul>
-                        </nav>
+                    <!-- Table View -->
+                    <div id="tableView">
+                        <div class="table-responsive">
+                            <table id="farmDataTable" class="table table-striped table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th class="sortable" data-sort="timestamp">
+                                            Thời gian <span class="sort-icon"></span>
+                                        </th>
+                                        <th class="sortable" data-sort="farmId">
+                                            Nông trại ID <span class="sort-icon"></span>
+                                        </th>
+                                        <th class="sortable" data-sort="temperature">
+                                            Nhiệt độ (°C) <span class="sort-icon"></span>
+                                        </th>
+                                        <th class="sortable" data-sort="humidity">
+                                            Độ ẩm (%) <span class="sort-icon"></span>
+                                        </th>
+                                        <th class="sortable" data-sort="waterLevel">
+                                            Độ ẩm đất (%) <span class="sort-icon"></span>
+                                        </th>
+                                        <th class="sortable" data-sort="lightLevel">
+                                            Độ sáng (%) <span class="sort-icon"></span>
+                                        </th>
+                                        <th class="sortable" data-sort="productId">
+                                            Sản phẩm ID <span class="sort-icon"></span>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dataTableBody">
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+
+                            <!-- Pagination -->
+                            <nav aria-label="Phân trang dữ liệu nông trại">
+                                <ul id="pagination" class="pagination justify-content-center">
+                                    <!-- Pagination controls will be populated by JavaScript -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!-- Chart View -->
+                    <div id="chartView" style="display: none;">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="farmDataChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -70,13 +154,32 @@
         <!-- Bootstrap JS and dependencies -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+        <!-- Chart.js - Ensure it loads before the farm-data module -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+
         <!-- Data Initialization Script -->
         <script>
             // Pass the data from the server to a global variable
             var originalData = {{ data|tojson }};
+            console.log('Data loaded:', originalData ? originalData.length : 0, 'records');
+            
+            // Debug data structure to console
+            if (originalData && originalData.length > 0) {
+                console.log('Sample data record:', originalData[0]);
+            }
+            
+            // Check Chart.js
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js is not loaded!');
+                    alert('Không thể tải thư viện Chart.js. Vui lòng làm mới trang.');
+                } else {
+                    console.log('Chart.js đã được tải, phiên bản:', Chart.version);
+                }
+            });
         </script>
 
-        <!-- Custom JS -->
-        <script src="{{ url_for('static', path='/js/farm_data.js') }}"></script>
+        <!-- Custom JS with module support -->
+        <script type="module" src="{{ url_for('static', path='/js/farm-data/index.js') }}"></script>
     </body>
 </html>

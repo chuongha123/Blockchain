@@ -1,8 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}User Management{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}User Management{% endblock %} {% block content %}
 <div class="container mt-5">
     <div class="row mb-4">
         <div class="col-md-6">
@@ -53,12 +49,24 @@
                     </td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a href="/admin/users/{{ user.id }}/edit" class="btn btn-sm btn-warning">
+                            <a
+                                href="/admin/users/{{ user.id }}/edit"
+                                class="btn btn-sm btn-warning"
+                            >
                                 <i class="fas fa-edit"></i> Edit
                             </a>
                             {% if user.id != current_user.id %}
-                            <a href="/admin/users/{{ user.id }}/delete" class="btn btn-sm btn-danger ms-1">
+                            <a
+                                href="/admin/users/{{ user.id }}/delete"
+                                class="btn btn-sm btn-danger ms-1"
+                            >
                                 <i class="fas fa-trash"></i> Delete
+                            </a>
+                            {% endif %} 
+                            
+                            {% if user.link_product %}
+                            <a href="/farm/{{ user.link_product }}" class="btn btn-sm btn-success ms-1">
+                                <i class="fas fa-eye"></i> View Data
                             </a>
                             {% endif %}
                         </div>
@@ -69,9 +77,7 @@
         </table>
     </div>
     {% else %}
-    <div class="alert alert-info">
-        No users found in the system.
-    </div>
+    <div class="alert alert-info">No users found in the system.</div>
     {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}
