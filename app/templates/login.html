@@ -120,15 +120,22 @@
 
                         // Show success message
                         loginMessage.innerHTML = `
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle"></i> Đăng nhập thành công! Đang chuyển hướng...
-                        </div>
-                    `;
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> Đăng nhập thành công! Đang chuyển hướng...
+                            </div>
+                        `;
 
-                        // Simple redirect is enough now as cookies will be sent automatically
-                        setTimeout(() => {
-                            window.location.href = '/';
-                        }, 1000);
+                        if (data.user_role === 'admin') {
+                            // Simple redirect is enough now as cookies will be sent automatically
+                            setTimeout(() => {
+                                window.location.href = '/admin';
+                            }, 1000);
+                        } else {
+                            // Simple redirect is enough now as cookies will be sent automatically
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 1000);
+                        }
                     } else {
                         // Show error message
                         loginMessage.innerHTML = `

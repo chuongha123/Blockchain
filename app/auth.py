@@ -76,8 +76,8 @@ def login_for_access_token(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
-
-    return {"access_token": access_token, "token_type": "bearer"}
+    print("user", user.role)
+    return {"access_token": access_token, "token_type": "bearer", "user_role": user.role}
 
 
 @router.get("/users/me", response_model=UserResponse)

@@ -233,7 +233,7 @@ async def users_management(
     )
 
 
-@router.get("/users/{user_id}/edit", response_class=HTMLResponse)
+@router.get("/users-management/{user_id}/edit", response_class=HTMLResponse)
 async def edit_user_form(
     request: Request,
     user_id: int,
@@ -337,7 +337,7 @@ async def edit_user_submit(
     )
 
 
-@router.get("/users/{user_id}/delete", response_class=HTMLResponse)
+@router.get("/users-management/{user_id}/delete", response_class=HTMLResponse)
 async def delete_user_confirm(
     request: Request,
     user_id: int,
@@ -423,8 +423,8 @@ async def delete_user_submit(
 @router.get("/farm-management", response_class=HTMLResponse)
 async def farm_management(
     request: Request,
-    farmId: Optional[str] = None,
-    productId: Optional[str] = None,
+    farm_id: Optional[str] = None,
+    product_id: Optional[str] = None,
     current_user: User = Depends(check_admin_role),
 ):
     """Farm management page - Only admin can access"""
@@ -438,16 +438,16 @@ async def farm_management(
 
         # Get all unique farm IDs from blockchain
         all_farms = []
-        farmIds = set()
+        farm_ids = set()
 
         # If search filters are provided, apply them
-        if farmId or productId:
+        if farm_id or product_id:
             # For now, if both filters are provided, we'll just use farmId
             # A more sophisticated approach would scan all farms and filter by productId too
-            if farmId:
-                farm_data = blockchain_service.get_sensor_data_by_farm_id(farmId)
+            if farm_id:
+                farm_data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
                 if farm_data:
-                    farmIds.add(farmId)
+                    farm_ids.add(farm_id)
         else:
             # This is simple for now - in a real system, we'd need a getUniqueFarmIds function
             # For now, we'll just get data from a few predefined farm IDs to check
@@ -455,10 +455,10 @@ async def farm_management(
             for farm_id in predefined_farms:
                 data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
                 if data and len(data) > 0:
-                    farmIds.add(farm_id)
+                    farm_ids.add(farm_id)
 
         # For each farm ID, get the last entry and count
-        for farm_id in farmIds:
+        for farm_id in farm_ids:
             farm_data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
 
             if farm_data and len(farm_data) > 0:

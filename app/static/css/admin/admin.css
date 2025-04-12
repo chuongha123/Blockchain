@@ -1,35 +1,13 @@
-/* Admin styles */
-
-/* Sidebar */
-.admin-sidebar {
-    min-height: calc(100vh - 56px);
-    background-color: #343a40;
-}
-
-.admin-sidebar .nav-link {
-    color: rgba(255, 255, 255, 0.75);
-    border-radius: 0;
-}
-
-.admin-sidebar .nav-link:hover {
-    color: rgba(255, 255, 255, 0.95);
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.admin-sidebar .nav-link.active {
-    color: #fff;
-    background-color: #007bff;
-}
-
-.admin-sidebar .nav-link i {
-    width: 20px;
-    margin-right: 0.5rem;
-    text-align: center;
+/* Admin Layout */
+.admin-container {
+    display: flex;
+    height: 100vh;
 }
 
 /* Admin content */
 .admin-content {
-    padding: 2rem;
+    flex: 1;
+    padding: 20px;
 }
 
 /* Card customization */
@@ -51,7 +29,7 @@
 
 /* Stats cards */
 .stats-card {
-    border-left: 4px solid #007bff;
+    border-left: 4px solid #198754;
     transition: transform 0.2s;
 }
 
@@ -60,11 +38,11 @@
 }
 
 .stats-card.primary {
-    border-left-color: #007bff;
+    border-left-color: #0d6efd;
 }
 
 .stats-card.success {
-    border-left-color: #28a745;
+    border-left-color: #198754;
 }
 
 .stats-card.warning {
@@ -101,16 +79,16 @@
 }
 
 .form-admin .form-control:focus {
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
 }
 
 /* Badges */
 .badge.bg-admin-primary {
-    background-color: #007bff;
+    background-color: #0d6efd;
 }
 
 .badge.bg-admin-success {
-    background-color: #28a745;
+    background-color: #198754;
 }
 
 .badge.bg-admin-warning {
@@ -124,21 +102,28 @@
 
 /* Pagination */
 .pagination-admin .page-item.active .page-link {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #198754;
+    border-color: #198754;
 }
 
 .pagination-admin .page-link {
-    color: #007bff;
+    color: #198754;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .admin-sidebar {
-        min-height: auto;
+    .admin-container {
+        flex-direction: column;
     }
-    
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+    }
+
     .admin-content {
         padding: 1rem;
     }
-} 
+}
