@@ -45,8 +45,11 @@ export class ChartManager {
             // Get time-sorted data (oldest to newest for proper display)
             const chartData = [...data].sort((a, b) => Number(a.timestamp) - Number(b.timestamp));
             
+            // Group data to reduce number of points
+            const groupedData = this._groupDataByTimeInterval(chartData);
+            
             // Prepare data for chart
-            const labels = chartData.map(item => formatTimestamp(item.timestamp));
+            const labels = groupedData.map(item => formatTimestamp(item.timestamp));
             
             // Destroy existing chart if it exists
             this._destroyExistingChart();
@@ -56,7 +59,7 @@ export class ChartManager {
             
             try {
                 // Create the chart configuration
-                const config = this._createChartConfig(chartData, labels);
+                const config = this._createChartConfig(groupedData, labels);
                 
                 console.log('Chart configuration created, now instantiating Chart');
                 
@@ -72,6 +75,69 @@ export class ChartManager {
             console.error('Error rendering chart:', e);
             this._displayErrorMessage();
         }
+    }
+
+    // Group data by time intervals to reduce chart complexity
+    _groupDataByTimeInterval(data) {
+        // If data length is reasonable, return as is
+        if (data.length <= 24) {
+            return data;
+        }
+        
+        // Determine grouping interval based on data size
+        let intervalMinutes;
+        if (data.length > 100) {
+            intervalMinutes = 240; // 4 hours if very large dataset
+        } else if (data.length > 50) {
+            intervalMinutes = 120; // 2 hours if large dataset
+        } else {
+            intervalMinutes = 60; // 1 hour otherwise
+        }
+        
+        console.log(`Grouping data by ${intervalMinutes} minute intervals`);
+        
+        const intervals = {};
+        const intervalMs = intervalMinutes * 60 * 1000;
+        
+        // Group data into time intervals
+        data.forEach(item => {
+            const timestamp = Number(item.timestamp) * 1000;
+            const intervalKey = Math.floor(timestamp / intervalMs) * intervalMs; // Round to interval
+            
+            if (!intervals[intervalKey]) {
+                intervals[intervalKey] = {
+                    count: 0,
+                    temperature: 0,
+                    humidity: 0,
+                    waterLevel: 0,
+                    lightLevel: 0,
+                    farmId: item.farmId,
+                    timestamp: Math.floor(intervalKey / 1000) // Convert back to seconds for consistency
+                };
+            }
+            
+            intervals[intervalKey].count++;
+            intervals[intervalKey].temperature += Number(item.temperature || 0);
+            intervals[intervalKey].humidity += Number(item.humidity || 0);
+            intervals[intervalKey].waterLevel += Number(item.waterLevel || 0);
+            intervals[intervalKey].lightLevel += Number(item.lightLevel || 0);
+        });
+        
+        // Calculate averages and create result array
+        const result = Object.values(intervals).map(interval => {
+            return {
+                timestamp: interval.timestamp,
+                temperature: interval.temperature / interval.count,
+                humidity: interval.humidity / interval.count,
+                waterLevel: interval.waterLevel / interval.count,
+                lightLevel: interval.lightLevel / interval.count,
+                farmId: interval.farmId,
+                groupedCount: interval.count
+            };
+        });
+        
+        console.log(`Reduced data points from ${data.length} to ${result.length}`);
+        return result;
     }
 
     // Handle empty data set
@@ -110,6 +176,16 @@ export class ChartManager {
 
     // Create chart configuration
     _createChartConfig(chartData, labels) {
+        // Create title with grouping info if applicable
+        let titleText = this.chartType === 'all' 
+            ? `Biểu đồ tổng hợp tất cả dữ liệu - Nông trại ${chartData[0]?.farmId || ''}`
+            : `Biểu đồ ${getChartTitle(this.chartType)} theo thời gian - Nông trại ${chartData[0]?.farmId || ''}`;
+            
+        // Add grouping info if data is grouped
+        if (chartData[0]?.groupedCount > 1) {
+            titleText += ` (Giá trị trung bình ${chartData[0].groupedCount} điểm dữ liệu/nhóm)`;
+        }
+        
         // Create chart config
         const config = {
             type: 'line',
@@ -123,16 +199,40 @@ export class ChartManager {
                 plugins: {
                     title: {
                         display: true,
-                        text: this.chartType === 'all' 
-                            ? `Biểu đồ tổng hợp tất cả dữ liệu - Nông trại ${chartData[0]?.farmId || ''}`
-                            : `Biểu đồ ${getChartTitle(this.chartType)} theo thời gian - Nông trại ${chartData[0]?.farmId || ''}`,
+                        text: titleText,
                         font: {
                             size: 18
                         }
                     },
                     tooltip: {
                         mode: 'index',
-                        intersect: false
+                        intersect: false,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                // Show more detailed time in tooltip
+                                const index = tooltipItems[0].dataIndex;
+                                const timestamp = Number(chartData[index].timestamp) * 1000;
+                                const date = new Date(timestamp);
+                                return date.toLocaleString();
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y.toFixed(1);
+                                }
+                                return label;
+                            },
+                            footer: function(tooltipItems) {
+                                const index = tooltipItems[0].dataIndex;
+                                if (chartData[index].groupedCount > 1) {
+                                    return `Trung bình từ ${chartData[index].groupedCount} điểm dữ liệu`;
+                                }
+                                return '';
+                            }
+                        }
                     },
                     legend: {
                         display: true,
@@ -147,7 +247,8 @@ export class ChartManager {
                         },
                         ticks: {
                             maxRotation: 45,
-                            minRotation: 45
+                            minRotation: 45,
+                            maxTicksLimit: 10 // Limit number of ticks on x-axis
                         }
                     },
                     y: {
@@ -180,9 +281,10 @@ export class ChartManager {
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 2,
-            pointRadius: 3,
+            pointRadius: chartData.length > 30 ? 1 : 3, // Smaller points for large datasets
             tension: 0.3,
-            yAxisID: 'y'
+            yAxisID: 'y',
+            pointHoverRadius: 6
         });
         
         // Add dataset for humidity
@@ -192,9 +294,10 @@ export class ChartManager {
             backgroundColor: 'rgba(54, 162, 235, 0.2)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 2,
-            pointRadius: 3,
+            pointRadius: chartData.length > 30 ? 1 : 3,
             tension: 0.3,
-            yAxisID: 'y'
+            yAxisID: 'y',
+            pointHoverRadius: 6
         });
         
         // Add dataset for water level
@@ -204,9 +307,10 @@ export class ChartManager {
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
             borderWidth: 2,
-            pointRadius: 3,
+            pointRadius: chartData.length > 30 ? 1 : 3,
             tension: 0.3,
-            yAxisID: 'y'
+            yAxisID: 'y',
+            pointHoverRadius: 6
         });
         
         // Add dataset for light level
@@ -216,9 +320,10 @@ export class ChartManager {
             backgroundColor: 'rgba(255, 159, 64, 0.2)',
             borderColor: 'rgba(255, 159, 64, 1)',
             borderWidth: 2,
-            pointRadius: 3,
+            pointRadius: chartData.length > 30 ? 1 : 3,
             tension: 0.3,
-            yAxisID: 'y'
+            yAxisID: 'y',
+            pointHoverRadius: 6
         });
     }
 
@@ -230,9 +335,11 @@ export class ChartManager {
             data: chartData.map(item => item[this.chartType]),
             backgroundColor: dataInfo.color.replace('1)', '0.2)'),
             borderColor: dataInfo.color,
-            borderWidth: 2,
-            pointRadius: 3,
-            tension: 0.3
+            borderWidth: 3, // Make single dataset lines thicker
+            pointRadius: chartData.length > 30 ? 2 : 4, // Slightly larger points for single dataset
+            tension: 0.2,
+            fill: true, // Add area fill for better visibility
+            pointHoverRadius: 8
         });
     }
 

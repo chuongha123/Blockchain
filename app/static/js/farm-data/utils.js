@@ -6,7 +6,35 @@
 export function formatTimestamp(timestamp) {
     try {
         const date = new Date(Number(timestamp) * 1000);
-        return date.toLocaleString();
+        
+        // Format the date to be more concise - only show hour if within same day
+        const now = new Date();
+        const isToday = date.toDateString() === now.toDateString();
+        const isThisYear = date.getFullYear() === now.getFullYear();
+        
+        if (isToday) {
+            // If today, only show time (HH:MM)
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else if (isThisYear) {
+            // If this year but not today, show date without year and time
+            return date.toLocaleDateString([], { 
+                month: 'short', 
+                day: 'numeric'
+            }) + ' ' + date.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+        } else {
+            // If different year, show full date with short time
+            return date.toLocaleDateString([], { 
+                year: 'numeric',
+                month: 'short', 
+                day: 'numeric' 
+            }) + ' ' + date.toLocaleTimeString([], { 
+                hour: '2-digit', 
+                minute: '2-digit'
+            });
+        }
     } catch (e) {
         console.error('Error formatting timestamp:', e);
         return 'Invalid date';
@@ -81,7 +109,7 @@ export function getChartDataInfo(chartType) {
 export function validateDomElements(elements) {
     for (const element of elements) {
         if (!element) {
-            console.error('Phần tử DOM không tồn tại:', element);
+            console.error('DOM element does not exist:', element);
             return false;
         }
     }
