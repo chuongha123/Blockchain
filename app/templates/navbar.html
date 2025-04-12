@@ -34,11 +34,18 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         {% if current_user.role == "admin" %}
-                        <li><a class="dropdown-item" href="/admin"><i class="fas fa-tools"></i> Admin Panel</a></li>
+                        <li>
+                            <a class="dropdown-item" href="/admin"
+                                ><i class="fas fa-tools"></i> Admin Panel</a
+                            >
+                        </li>
                         <li><hr class="dropdown-divider" /></li>
-                        {% endif %}
-                        {% if current_user.role == "user" %}
-                        <li><a class="dropdown-item" href="/farm/{{ current_user.link_product }}"><i class="fas fa-box"></i> Sản phẩm của tôi</a></li>
+                        {% endif %} {% if current_user.role == "user" %}
+                        <li>
+                            <a class="dropdown-item" href="/farm/{{ current_user.link_product }}"
+                                ><i class="fas fa-box"></i> Sản phẩm của tôi</a
+                            >
+                        </li>
                         <li><hr class="dropdown-divider" /></li>
                         {% endif %}
                         <li><a class="dropdown-item" href="/auth/users/me">Hồ sơ</a></li>
@@ -55,4 +62,31 @@
             </ul>
         </div>
     </div>
-</nav> 
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Smooth scrolling for anchor links with offset
+        document.querySelectorAll('a[href*="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href').split('#')[1];
+                if (!targetId || targetId === '') return;
+
+                const targetElement = document.querySelector('#' + targetId);
+                if (targetElement) {
+                    // Get the navbar height to use as offset (or use a fixed value)
+                    const navbarHeight = document.querySelector('.navbar').offsetHeight;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - navbarHeight;
+                    console.log('offsetPosition', offsetPosition);
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth',
+                    });
+                }
+            });
+        });
+    });
+</script>

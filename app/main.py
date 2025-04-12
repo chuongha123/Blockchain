@@ -8,7 +8,7 @@ from app.auth import router as auth_router
 from app.routers.template_routes import router as template_router
 from app.routers.api_routes import router as api_router
 from app.routers.qr_routes import router as qr_router
-from app.routers.admin_routes import router as admin_router
+from app.routers.admin.admin_routes import router as admin_router
 from app.routers.mock_data_api import router as mock_data_router
 
 # Initialize database tables

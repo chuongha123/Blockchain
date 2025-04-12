@@ -53,16 +53,20 @@ class BlockchainService:
             return None
 
         try:
-            temperature = int(
-                float(data.get("temperature", 0)) * 100
-            )
+            temperature = int(float(data.get("temperature", 0)) * 100)
             humidity = int(data.get("humidity"))
             water_level = int(data.get("water_level"))
             light_level = int(data.get("light_level"))
             nonce = self.web3.eth.get_transaction_count(self.account.address)
             # Build deployment transaction
-            stored_func = self.contract.functions.storeData(farm_id, temperature, humidity, water_level,
-                                                            data.get("product_id"), light_level)
+            stored_func = self.contract.functions.storeData(
+                farm_id,
+                temperature,
+                humidity,
+                water_level,
+                data.get("product_id"),
+                light_level,
+            )
             transaction = stored_func.build_transaction(
                 {
                     "from": self.account.address,
@@ -99,13 +103,13 @@ class BlockchainService:
             formatted_data = []
             for item in raw_data:
                 formatted_item = {
-                    'timestamp': item[0],
-                    'farmId': item[1],
-                    'temperature': item[2] / 100,
-                    'humidity': item[3],
-                    'waterLevel': item[4],
-                    'productId': item[5],
-                    'lightLevel': item[6]
+                    "timestamp": item[0],
+                    "farmId": item[1],
+                    "temperature": item[2] / 100,
+                    "humidity": item[3],
+                    "waterLevel": item[4],
+                    "productId": item[5],
+                    "lightLevel": item[6],
                 }
                 formatted_data.append(formatted_item)
 
@@ -113,4 +117,34 @@ class BlockchainService:
 
         except Exception as e:
             print(f"Error getting data from blockchain: {str(e)}")
+            return None
+
+    def get_all_sensor_data(self):
+        """Get all sensor data from blockchain"""
+        if not getattr(self, "initialized", False):
+            print("Blockchain not initialized")
+            return None
+
+        try:
+            raw_data = self.contract.functions.getAllData().call()
+            if not raw_data:
+                print("No data found")
+                return None
+
+            formatted_data = []
+            for item in raw_data:
+                formatted_item = {
+                    "timestamp": item[0],
+                    "farm_id": item[1],
+                    "temperature": item[2] / 100,
+                    "humidity": item[3],
+                    "water_level": item[4],
+                    "product_id": item[5],
+                    "light_level": item[6],
+                }
+                formatted_data.append(formatted_item)
+
+            return formatted_data
+        except Exception as e:
+            print(f"Error getting all data from blockchain: {str(e)}")
             return None

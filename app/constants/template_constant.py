@@ -1,0 +1,1 @@
+ADMIN_ERROR_TEMPLATE = "admin/error.html"
