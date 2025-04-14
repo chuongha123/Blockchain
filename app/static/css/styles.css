@@ -29,6 +29,83 @@ body {
     color: #6c757d;
 }
 
+/* Home Page Styles */
+.hero-section {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/images/farm-hero.jpg');
+    background-size: cover;
+    color: white;
+    padding: 100px 0;
+}
+
+.feature-card {
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+}
+
+.product-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.section-title {
+    position: relative;
+    margin-bottom: 45px;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background-color: #28a745;
+}
+
+.hero-image {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Data Table Styles */
+.sortable {
+    cursor: pointer;
+}
+
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sort-icon {
+    margin-left: 5px;
+}
+
+/* Pagination Styles */
+.page-item.active .page-link {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.page-link {
+    color: #198754;
+}
+
+.page-link:hover {
+    color: #0f5132;
+}
+
 @media (max-width: 768px) {
     .sensor-value {
         font-size: 1.5rem;

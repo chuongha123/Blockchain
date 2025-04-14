@@ -1,0 +1,174 @@
+/* Farm Data Page Styles */
+.sensor-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sensor-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 0;
+}
+
+.status-box {
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+.blockchain-status {
+    text-align: center;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Data Table Styles */
+.sortable {
+    cursor: pointer;
+}
+
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.sort-icon {
+    margin-left: 5px;
+}
+
+/* Pagination Styles */
+.pagination {
+    margin-top: 1.5rem;
+}
+
+.page-item.active .page-link {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.page-link {
+    color: #198754;
+}
+
+.page-link:hover {
+    color: #0f5132;
+}
+
+/* Filter and View Controls */
+.card-header.bg-light {
+    background-color: #f8f9fa !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Chart Styles */
+#chartView {
+    margin-top: 1rem;
+}
+
+#chartView .card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+#chartView .card-body {
+    padding: 1.5rem;
+    position: relative; /* For proper canvas positioning */
+}
+
+/* Ensure canvas takes up the full container size */
+#farmDataChart {
+    width: 100% !important;
+    height: 400px !important;
+    display: block !important;
+}
+
+/* Ensure the chart container sizes properly */
+#chartView .card-body > div {
+    position: relative;
+    width: 100%;
+    height: 400px;
+}
+
+/* Debug information styling */
+#chartDebugInfo {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+#chartDebugInfo ul {
+    padding-left: 1.5rem;
+}
+
+#chartDebugInfo .text-success {
+    color: #198754;
+    font-weight: bold;
+}
+
+#chartDebugInfo .text-danger {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+#chartDebugInfo .text-warning {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+/* Date filter styles */
+#startDate, #endDate {
+    border-color: #ced4da;
+}
+
+#startDate:focus, #endDate:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
+}
+
+/* Button Styles */
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-outline-success {
+    color: #198754;
+    border-color: #198754;
+}
+
+.btn-outline-success:hover {
+    background-color: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-header h5 {
+        font-size: 1rem;
+    }
+    
+    .btn-group .btn {
+        font-size: 0.85rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    #farmDataTable th,
+    #farmDataTable td {
+        font-size: 0.85rem;
+        padding: 0.5rem;
+    }
+    
+    /* Adjust chart height on small screens */
+    #farmDataChart,
+    #chartView .card-body > div {
+        height: 300px !important;
+    }
+}

@@ -1,0 +1,44 @@
+/* Home Page Styles */
+.hero-section {
+    background:
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/images/farm-hero.jpg');
+    background-size: cover;
+    color: white;
+    padding: 100px 0;
+}
+
+.hero-image {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card {
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+}
+
+.product-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.back-to-top-button {
+    bottom: 30px;
+    right: 30px;
+    display: none;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    padding: 10px 0;
+    text-align: center;
+}

@@ -1,0 +1,14 @@
+{
+    "name": "farm-monitor",
+    "version": "1.0.0",
+    "description": "Farm monitoring system with authentication",
+    "private": true,
+    "scripts": {
+        "format": "prettier --write \"**/*.{js,py,html,css,json}\"",
+        "format:check": "prettier --check \"**/*.{js,py,html,css,json}\""
+    },
+    "devDependencies": {
+        "prettier": "^3.0.0",
+        "@prettier/plugin-python": "0.0.0-development"
+    }
+}

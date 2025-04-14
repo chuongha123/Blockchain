@@ -5,12 +5,10 @@ __pycache__/
 # Virtual environment
 venv/
 ENV/
-*.env
 *.venv
 
 # Flask instance and config files
 instance/
-config.py
 settings.py
 
 # Logs and database
@@ -37,3 +35,12 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+docker/besu-node/volume/
+node_modules/
+scripts/account_info.json
+scripts/besu_key.txt
+scripts/keystore.json
+scripts/password.txt
+contract/contract_address.json
+package-lock.json
+yarn.lock

@@ -9,6 +9,7 @@ contract IoTStorage {
         uint256 humidity;
         uint256 waterLevel;
         string productId;
+        uint256 lightLevel;
     }
 
     Farm[] public farms;
@@ -16,16 +17,19 @@ contract IoTStorage {
     mapping(string => Farm[]) private farmMapping;
     mapping(string => bool) private farmExists;
 
-    event DataStored(uint256 index, uint256 timestamp, string farmId, uint256 temperature, uint256 humidity, uint256 waterLevel, string productId);
-
-    function storeData(string memory farmId, uint256 temperature, uint256 humidity, uint256 waterLevel, string memory productId) public returns (uint256) {
+    function storeData(
+        string memory farmId,
+        uint256 temperature,
+        uint256 humidity,
+        uint256 waterLevel,
+        string memory productId,
+        uint256 lightLevel
+    ) public returns (uint256) {
         uint256 index = farms.length;
-        Farm memory farm = Farm(block.timestamp, farmId, temperature, humidity, waterLevel, productId);
+        Farm memory farm = Farm(block.timestamp, farmId, temperature, humidity, waterLevel, productId, lightLevel);
         farms.push(farm);
         farmMapping[farmId].push(farm);
         farmExists[farmId] = true;
-
-        emit DataStored(index, block.timestamp, farmId, temperature, humidity, waterLevel, productId);
         return index;
     }
 

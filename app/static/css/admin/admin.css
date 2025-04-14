@@ -1,0 +1,129 @@
+/* Admin Layout */
+.admin-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Admin content */
+.admin-content {
+    flex: 1;
+    padding: 20px;
+}
+
+/* Card customization */
+.card-admin {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-admin .card-header {
+    background-color: transparent;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem;
+}
+
+.card-admin .card-body {
+    padding: 1.5rem;
+}
+
+/* Stats cards */
+.stats-card {
+    border-left: 4px solid #198754;
+    transition: transform 0.2s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-card.primary {
+    border-left-color: #0d6efd;
+}
+
+.stats-card.success {
+    border-left-color: #198754;
+}
+
+.stats-card.warning {
+    border-left-color: #ffc107;
+}
+
+.stats-card.danger {
+    border-left-color: #dc3545;
+}
+
+.stats-card .stats-icon {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
+/* Tables */
+.table-admin thead th {
+    border-top: none;
+    border-bottom-width: 1px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+/* Forms */
+.form-admin {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-admin .form-control {
+    border-radius: 0.25rem;
+}
+
+.form-admin .form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+/* Badges */
+.badge.bg-admin-primary {
+    background-color: #0d6efd;
+}
+
+.badge.bg-admin-success {
+    background-color: #198754;
+}
+
+.badge.bg-admin-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge.bg-admin-danger {
+    background-color: #dc3545;
+}
+
+/* Pagination */
+.pagination-admin .page-item.active .page-link {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.pagination-admin .page-link {
+    color: #198754;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+    }
+
+    .admin-content {
+        padding: 1rem;
+    }
+}

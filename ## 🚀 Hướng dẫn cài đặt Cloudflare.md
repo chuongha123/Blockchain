@@ -92,5 +92,3 @@ cloudflared service install
 ✅ **Không cần mở port trên router**  
 ✅ **Bảo mật hơn, có chống DDoS miễn phí**  
 ✅ **Tích hợp domain tùy chỉnh hoặc dùng `.cloudflare.dev`**  
-
-Bạn thử setup rồi báo mình nếu gặp lỗi nhé! 🚀🔥
