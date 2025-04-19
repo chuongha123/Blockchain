@@ -1,11 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
-
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
+import os
 
 from app.services.database import get_db
 from app.model.user import User, UserCreate, Token, UserResponse
+from app.model.farm_data import Farm, FarmReport, Product
 from app.services.security import (
     get_password_hash,
     authenticate_user,
@@ -15,6 +18,7 @@ from app.services.security import (
 )
 
 router = APIRouter(tags=["authentication"])
+templates = Jinja2Templates(directory=os.path.join("app", "templates"))
 
 
 @router.post(
@@ -80,10 +84,44 @@ def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer", "user_role": user.role}
 
 
-@router.get("/users/me", response_model=UserResponse)
-def read_users_me(current_user: User = Depends(get_current_active_user)):
-    """Get current user information"""
-    return current_user
+@router.get("/users/me", response_class=HTMLResponse)
+async def read_users_me(
+    request: Request,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get current user information with farms"""
+    # Get user's farms using the relationship
+    farms = db.query(Farm).filter(Farm.user_id == current_user.id).all()
+    farm_reports = {}
+    
+    # Get latest farm report for each farm
+    for farm in farms:
+        latest_report = db.query(FarmReport).filter(
+            FarmReport.farm_id == farm.id
+        ).order_by(FarmReport.created_at.desc()).first()
+        
+        if latest_report:
+            farm_reports[farm.id] = latest_report
+            
+        # Get product info to determine if harvested
+        product = db.query(Product).filter(Product.id == farm.id).first()
+        if product:
+            # Add is_harvested attribute to farm object
+            setattr(farm, 'is_harvested', product.is_harvested)
+        else:
+            setattr(farm, 'is_harvested', False)
+    
+    # Render template with user and farm data
+    return templates.TemplateResponse(
+        "profile.html",
+        {
+            "request": request,
+            "current_user": current_user,
+            "farms": farms,
+            "farm_reports": farm_reports
+        }
+    )
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)

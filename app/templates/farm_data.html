@@ -15,7 +15,7 @@
         <!-- Custom CSS -->
         <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}" />
         <link rel="stylesheet" href="{{ url_for('static', path='/css/farm_data.css') }}" />
-        
+
         <!-- Cấu hình để Chart.js hoạt động tốt hơn -->
         <style>
             .chart-container {
@@ -48,12 +48,18 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-2">
-                                            <label for="startDate" class="form-label">Từ ngày</label>
-                                            <input type="date" class="form-control" id="startDate">
+                                            <label for="startDate" class="form-label"
+                                                >Từ ngày</label
+                                            >
+                                            <input
+                                                type="date"
+                                                class="form-control"
+                                                id="startDate"
+                                            />
                                         </div>
                                         <div class="col-md-6 mb-2">
                                             <label for="endDate" class="form-label">Đến ngày</label>
-                                            <input type="date" class="form-control" id="endDate">
+                                            <input type="date" class="form-control" id="endDate" />
                                         </div>
                                     </div>
                                     <button id="applyFilter" class="btn btn-success mt-2">
@@ -72,15 +78,29 @@
                                 </div>
                                 <div class="card-body">
                                     <fieldset class="btn-group" aria-label="View mode">
-                                        <button type="button" class="btn btn-success active" id="tableViewBtn">
+                                        <button
+                                            type="button"
+                                            class="btn btn-success active"
+                                            id="tableViewBtn"
+                                        >
                                             <i class="bi bi-table"></i> Bảng
                                         </button>
-                                        <button type="button" class="btn btn-outline-success" id="chartViewBtn">
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-success"
+                                            id="chartViewBtn"
+                                        >
                                             <i class="bi bi-graph-up"></i> Biểu đồ
                                         </button>
                                     </fieldset>
-                                    <div class="form-group mt-3" id="chartTypeContainer" style="display: none;">
-                                        <label for="chartType" class="form-label">Loại biểu đồ:</label>
+                                    <div
+                                        class="form-group mt-3"
+                                        id="chartTypeContainer"
+                                        style="display: none"
+                                    >
+                                        <label for="chartType" class="form-label"
+                                            >Loại biểu đồ:</label
+                                        >
                                         <select class="form-select" id="chartType">
                                             <option value="all">Tất cả các dữ liệu</option>
                                             <option value="temperature">Nhiệt độ</option>
@@ -93,21 +113,18 @@
                             </div>
                         </div>
 
+                        {% if current_user.link_product == farm_id %}
                         <div class="col-md-4">
                             <div class="card">
                                 <div class="card-header bg-light">
                                     <h5 class="mb-0">Trạng thái thu hoạch</h5>
                                 </div>
                                 <div class="form-check form-switch">
-                                    <label>
-                                        <input
-                                                class="form-check-input harvest-btn"
-                                                type="checkbox"
-                                        />
-                                    </label>
+                                    <input class="form-check-input harvest-btn" type="checkbox" />
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
                     </div>
 
                     <!-- Table View -->
@@ -154,7 +171,7 @@
                     </div>
 
                     <!-- Chart View -->
-                    <div id="chartView" style="display: none;">
+                    <div id="chartView" style="display: none">
                         <div class="card">
                             <div class="card-body">
                                 <div class="chart-container">
@@ -178,12 +195,12 @@
             // Pass the data from the server to a global variable
             var originalData = {{ data|tojson }};
             console.log('Data loaded:', originalData ? originalData.length : 0, 'records');
-            
+
             // Debug data structure to console
             if (originalData && originalData.length > 0) {
                 console.log('Sample data record:', originalData[0]);
             }
-            
+
             // Check Chart.js
             document.addEventListener('DOMContentLoaded', function() {
                 if (typeof Chart === 'undefined') {

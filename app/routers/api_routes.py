@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from app.services.farm_report_service import FarmReportService
 
 from app.routers.admin.farm_api_routes import router as farm_api_router
 from app.model.farm_data import FarmData
 from app.model.user import User
 from app.services.security import get_current_active_user
+from app.utils import generate_random_report_id
+from sqlalchemy.orm import Session
+from app.services.database import get_db
 
 # Initialize API router
 router = APIRouter(prefix="/api", tags=["api"])
@@ -27,7 +31,7 @@ class ContactForm(BaseModel):
 
 @router.get("/farm/{farm_id}")
 async def get_farm_data(
-        farm_id: str, current_user: User = Depends(get_current_active_user)
+    farm_id: str, current_user: User = Depends(get_current_active_user)
 ):
     """API returns farm data in JSON format - Requires authentication"""
     data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
@@ -39,7 +43,7 @@ async def get_farm_data(
 
 
 @router.post("/farm")
-async def store_farm_data(data: FarmData):
+async def store_farm_data(data: FarmData, db: Session = Depends(get_db)):
     """API stores sensor data into blockchain - Requires authentication"""
     try:
         # Prepare data to store into blockchain
@@ -62,6 +66,17 @@ async def store_farm_data(data: FarmData):
                 status_code=500,
                 detail="Cannot store data into blockchain. Please check connection and try again.",
             )
+
+        FarmReportService.create_report(
+            db=db,
+            report_id=generate_random_report_id(),
+            farm_id=data.farm_id,
+            product_id=data.product_id,
+            temperature=data.temperature,
+            humidity=data.humidity,
+            water_level=data.water_level,
+            light_level=data.light_level,
+        )
 
         # Return success with transaction hash
         return {
@@ -94,7 +109,7 @@ async def send_contact_email(contact: ContactForm):
 
         # Check email configuration
         if not all(
-                [EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]
+            [EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]
         ):
             return {
                 "success": False,

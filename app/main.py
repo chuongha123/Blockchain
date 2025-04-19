@@ -12,6 +12,8 @@ from app.routers.api_routes import router as api_router
 from app.routers.qr_routes import router as qr_router
 from app.routers.admin.admin_routes import router as admin_router
 from app.routers.mock_data_api import router as mock_data_router
+from app.routers.farm_routes import router as farm_router
+from app.routers.user_farm_routes import router as user_farm_router
 
 # Initialize database tables
 Base.metadata.create_all(bind=engine)
@@ -24,6 +26,9 @@ app = FastAPI(title="Farm Monitor API")
 @app.exception_handler(HTTPException)
 async def unauthorized_exception_handler(request: Request, exc: HTTPException):
     if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+
+    if exc.status_code == status.HTTP_403_FORBIDDEN:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
     # For other exceptions, let FastAPI handle them
     raise exc
@@ -42,6 +47,8 @@ app.include_router(api_router)
 app.include_router(qr_router)
 app.include_router(admin_router)
 app.include_router(mock_data_router)
+app.include_router(farm_router)
+app.include_router(user_farm_router)
 
 # Start the application
 if __name__ == "__main__":

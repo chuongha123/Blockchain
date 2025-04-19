@@ -38,6 +38,12 @@ except Exception as e:
 # Use the pre-defined DATABASE_URL from .env which has proper URL encoding
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Add charset parameter if not already in the DATABASE_URL
+if DATABASE_URL and "?" not in DATABASE_URL:
+    DATABASE_URL += "?charset=utf8mb4"
+elif DATABASE_URL and "charset=utf8mb4" not in DATABASE_URL:
+    DATABASE_URL += "&charset=utf8mb4"
+
 # Create SQLAlchemy engine with a pool of connections
 engine = create_engine(
     DATABASE_URL,

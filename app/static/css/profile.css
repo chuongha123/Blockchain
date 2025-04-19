@@ -1,0 +1,78 @@
+.profile-header {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    margin-right: 20px;
+}
+
+.farm-card {
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.farm-card:hover {
+    transform: translateY(-5px);
+}
+
+.harvested {
+    border-left: 5px solid #28a745;
+}
+
+.not-harvested {
+    border-left: 5px solid #ffc107;
+}
+
+.badge-harvested {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-not-harvested {
+    background-color: #ffc107;
+    color: black;
+}
+
+.farm-stats {
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+}
+
+.stat-icon {
+    font-size: 1.2rem;
+    margin-right: 10px;
+}
+
+/* QR Code container styles */
+.qr-container {
+    padding: 15px;
+    border-top: 1px solid #e9ecef;
+    background-color: #f8f9fa;
+}
+
+.qr-image-container {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+.qr-image-container img {
+    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+} 
