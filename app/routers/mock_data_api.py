@@ -3,10 +3,13 @@ import string
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from requests import Session
 
 from app.services.blockchain import BlockchainService
 from app.model.farm_data import FarmData
 from app.model.user import User
+from app.services.database import get_db
+from app.services.farm_report_service import FarmReportService
 from app.services.security import get_optional_user
 
 # Initialize API router
@@ -49,7 +52,7 @@ def generate_random_product_id():
 
 
 @router.post("/generate")
-async def generate_mock_data(request: MockDataRequest):
+async def generate_mock_data(request: MockDataRequest, db: Session = Depends(get_db)):
     """Generate and store mock data in blockchain"""
     if request.count > 100:
         raise HTTPException(
@@ -86,6 +89,17 @@ async def generate_mock_data(request: MockDataRequest):
             # Call service to store data
             tx_hash = blockchain_service.store_sensor_data(
                 mock_data.farm_id, farm_payload
+            )
+
+            FarmReportService.create_report(
+                db=db,
+                report_id=generate_random_product_id(),
+                farm_id=mock_data.farm_id,
+                product_id=mock_data.product_id,
+                temperature=mock_data.temperature,
+                humidity=mock_data.humidity,
+                water_level=mock_data.water_level,
+                light_level=mock_data.light_level,
             )
 
             if tx_hash:

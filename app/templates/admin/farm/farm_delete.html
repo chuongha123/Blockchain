@@ -1,0 +1,70 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Delete Farm{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>Delete Farm</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="/admin/farm-management" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Farm List
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="alert alert-danger mb-4">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Warning!</h4>
+                <p>Are you sure you want to delete this farm? This action cannot be undone.</p>
+            </div>
+
+            <div class="mb-4">
+                <h5>Farm Details</h5>
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width: 150px;">Farm ID</th>
+                        <td>{{ farm.id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ farm.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ farm.description or 'No description' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created At</th>
+                        <td>{{ farm.created_at }}</td>
+                    </tr>
+                    <tr>
+                        <th>User</th>
+                        <td>
+                            {% if farm.user %}
+                                {{ farm.user.username }} (ID: {{ farm.user.id }})
+                            {% else %}
+                                <span class="text-muted">No user assigned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <form method="post" action="/admin/farms/{{ farm.id }}/delete">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="/admin/farm-management" class="btn btn-secondary me-md-2">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete Farm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

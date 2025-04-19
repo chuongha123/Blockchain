@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from app.services.farm_report_service import FarmReportService
 
 from app.routers.admin.farm_api_routes import router as farm_api_router
-from app.model.farm_data import FarmData
+from app.model.farm_data import FarmData, Farm
 from app.model.user import User
 from app.services.security import get_current_active_user
 from app.utils import generate_random_report_id
@@ -27,6 +27,12 @@ class ContactForm(BaseModel):
     name: str
     email: str
     message: str
+
+
+class FarmCreate(BaseModel):
+    id: str
+    name: str
+    description: str = None
 
 
 @router.get("/farm/{farm_id}")
@@ -156,3 +162,89 @@ async def send_contact_email(contact: ContactForm):
 
     except Exception as e:
         return {"success": False, "message": f"Không thể gửi email: {str(e)}"}
+
+
+@router.get("/debug/farms")
+async def debug_farms(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """API để debug danh sách farms"""
+    # Kiểm tra quyền admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Không có quyền truy cập"
+        )
+    
+    farms = db.query(Farm).all()
+    
+    # Convert farms to dict for JSON response
+    farms_data = []
+    for farm in farms:
+        farm_dict = {
+            "id": farm.id,
+            "name": farm.name,
+            "description": farm.description,
+            "user_id": farm.user_id,
+            "created_at": str(farm.created_at),
+            "updated_at": str(farm.updated_at)
+        }
+        farms_data.append(farm_dict)
+    
+    return {
+        "success": True,
+        "count": len(farms_data),
+        "farms": farms_data
+    }
+
+
+@router.post("/farms/add")
+async def add_farm(
+    farm: FarmCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """API để thêm farm mới"""
+    # Kiểm tra quyền admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Không có quyền truy cập"
+        )
+    
+    # Kiểm tra farm_id đã tồn tại chưa
+    existing_farm = db.query(Farm).filter(Farm.id == farm.id).first()
+    if existing_farm:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Farm với ID '{farm.id}' đã tồn tại"
+        )
+    
+    # Tạo farm mới
+    new_farm = Farm(
+        id=farm.id,
+        name=farm.name,
+        description=farm.description
+    )
+    
+    try:
+        db.add(new_farm)
+        db.commit()
+        db.refresh(new_farm)
+        
+        return {
+            "success": True,
+            "message": f"Đã thêm thành công farm: {farm.name}",
+            "farm": {
+                "id": new_farm.id,
+                "name": new_farm.name,
+                "description": new_farm.description
+            }
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lỗi khi thêm farm: {str(e)}"
+        )
