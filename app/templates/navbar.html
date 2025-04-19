@@ -40,13 +40,6 @@
                             >
                         </li>
                         <li><hr class="dropdown-divider" /></li>
-                        {% endif %} {% if current_user.role == "user" %}
-                        <li>
-                            <a class="dropdown-item" href="/farm/{{ current_user.link_product }}"
-                                ><i class="fas fa-box"></i> Sản phẩm của tôi</a
-                            >
-                        </li>
-                        <li><hr class="dropdown-divider" /></li>
                         {% endif %}
                         <li><a class="dropdown-item" href="/auth/users/me">Hồ sơ</a></li>
                         <li><hr class="dropdown-divider" /></li>
