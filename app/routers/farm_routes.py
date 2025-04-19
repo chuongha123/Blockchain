@@ -28,15 +28,6 @@ async def harvest_farm(
     db: Session = Depends(get_db),
 ):
     """Mark a farm as harvested via AJAX and return QR code"""
-    # Check if the user has access to this farm
-    if current_user.role != "admin" and current_user.link_product != farm_id:
-        return JSONResponse(
-            status_code=status.HTTP_403_FORBIDDEN,
-            content={
-                "success": False,
-                "message": "You don't have permission to harvest this farm",
-            },
-        )
 
     # Get the farm
     farm = db.query(Farm).filter(Farm.id == farm_id).first()
