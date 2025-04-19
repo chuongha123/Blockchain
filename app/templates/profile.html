@@ -94,8 +94,22 @@
                 </div>
                 {% endif %}
                 
+                <!-- QR Code section - now always visible for harvested farms -->
+                {% if farm.is_harvested and farm.qr_code_url %}
+                <div class="qr-container">
+                    <div class="text-center mt-3">
+                        <h6>Mã QR truy xuất</h6>
+                        <div class="qr-image-container">
+                            <img src="{{ farm.qr_code_url }}" 
+                                 alt="QR Code" class="img-fluid" 
+                                 style="max-width: 150px;">
+                        </div>
+                    </div>
+                </div>
+                {% else %}
                 <!-- QR Code container (initially hidden) -->
                 <div class="qr-container" style="display: none;"></div>
+                {% endif %}
 
                 <div class="card-footer d-flex justify-content-between">
                     <a href="/farm/{{ farm.id }}" class="btn btn-primary btn-sm">
@@ -107,15 +121,6 @@
                         data-farm-id="{{ farm.id }}"
                     >
                         <i class="fas fa-seedling"></i> Đánh dấu thu hoạch
-                    </button>
-                    {% else %}
-                    <!-- If already harvested, show QR code button -->
-                    <button 
-                        class="btn btn-info btn-sm show-qr-btn"
-                        data-farm-id="{{ farm.id }}"
-                        onclick="window.open('/farm/{{ farm.id }}', '_blank')"
-                    >
-                        <i class="fas fa-qrcode"></i> Xem mã QR
                     </button>
                     {% endif %}
                 </div>

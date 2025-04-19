@@ -56,11 +56,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                          alt="QR Code" class="img-fluid" 
                                          style="max-width: 150px;">
                                 </div>
-                                <p class="mt-2">
-                                    <a href="${data.farm_url}" target="_blank" class="btn btn-sm btn-info">
-                                        <i class="fas fa-external-link-alt"></i> Xem dữ liệu
-                                    </a>
-                                </p>
                             </div>
                         `;
                             qrContainer.style.display = 'block';
@@ -73,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             qrButton.setAttribute('data-farm-id', farmId);
                             qrButton.innerHTML = '<i class="fas fa-qrcode"></i> Xem mã QR';
                             qrButton.onclick = function () {
-                                window.open(`/farm/${farmId}`, '_blank');
+                                window.open(data.farm_url, '_blank');
                             };
 
                             if (harvestBtn) {
@@ -110,8 +105,11 @@ document.addEventListener('DOMContentLoaded', function () {
     // Handle show QR buttons for already harvested farms
     const showQrButtons = document.querySelectorAll('.show-qr-btn');
     showQrButtons.forEach(button => {
-        // These buttons already have onclick handlers to open the farm data page
-        // We can add additional functionality here if needed
+        // Make sure the onclick handler uses the correct URL
+        button.onclick = function() {
+            const farmId = this.getAttribute('data-farm-id');
+            window.open(`/farm/${farmId}`, '_blank');
+        };
     });
 
     // Toast notification function

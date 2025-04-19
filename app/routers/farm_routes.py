@@ -40,17 +40,19 @@ async def harvest_farm(
 
     # Update the farm
     farm.is_harvested = is_harvested
-    db.commit()
 
     # Generate QR code with farm data URL
     farm_data_url = f"/farm/{farm_id}"
-    qr_code_url = generate_qr_service.generate_qr_code(farm_data_url)
+    qr_code_url = generate_qr_service.generate_qr_code(farm_id)
+    farm.qr_code_url = f"/static/{qr_code_url}"
+
+    db.commit()
 
     return JSONResponse(
         content={
             "success": True,
             "message": "Farm marked as harvested successfully",
-            "qr_code": qr_code_url,
+            "qr_code": f"/static/{qr_code_url}",
             "farm_url": farm_data_url,
         }
     )
