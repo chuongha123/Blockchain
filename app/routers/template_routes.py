@@ -40,16 +40,6 @@ async def farm_data(
     # Import here to avoid circular import
     from app.services.blockchain import BlockchainService
 
-    if not current_user or not current_user.is_active:
-        return templates.TemplateResponse(
-            "error.html",
-            {
-                "request": request,
-                "current_user": current_user,
-                "error": "You are not active user",
-            },
-        )
-
     blockchain_service = BlockchainService()
 
     # Get data from blockchain

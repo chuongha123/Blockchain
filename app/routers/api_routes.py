@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from app.services.security import get_optional_user
 from app.services.farm_report_service import FarmReportService
 
 from app.routers.farm_routes import router as farm_api_router
@@ -37,7 +38,7 @@ class FarmCreate(BaseModel):
 
 @router.get("/farm/{farm_id}")
 async def get_farm_data(
-    farm_id: str,
+    farm_id: str, current_user: User = Depends(get_optional_user)
 ):
     """API returns farm data in JSON format - Requires authentication"""
     data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
