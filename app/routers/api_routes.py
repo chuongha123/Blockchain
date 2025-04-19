@@ -37,7 +37,7 @@ class FarmCreate(BaseModel):
 
 @router.get("/farm/{farm_id}")
 async def get_farm_data(
-    farm_id: str, current_user: User = Depends(get_current_active_user)
+    farm_id: str,
 ):
     """API returns farm data in JSON format - Requires authentication"""
     data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
