@@ -1,7 +1,9 @@
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+from fastapi.exceptions import HTTPException
 
 from app.database import engine, Base
 from app.auth import router as auth_router
@@ -16,6 +18,16 @@ Base.metadata.create_all(bind=engine)
 
 # Create FastAPI application
 app = FastAPI(title="Farm Monitor API")
+
+
+# Add exception handler for authentication errors
+@app.exception_handler(HTTPException)
+async def unauthorized_exception_handler(request: Request, exc: HTTPException):
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
+    # For other exceptions, let FastAPI handle them
+    raise exc
+
 
 # Load environment variables
 load_dotenv()

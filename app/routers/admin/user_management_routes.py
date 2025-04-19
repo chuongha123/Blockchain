@@ -20,6 +20,7 @@ templates = Jinja2Templates(directory="app/templates")
 USER_FORM_TEMPLATE = "admin/user/user_form.html"
 USER_DELETE_TEMPLATE = "admin/user/user_delete.html"
 USER_USERS_TEMPLATE = "admin/user/users.html"
+USER_MANAGEMENT_ROUTE = "/admin/users-management"
 
 
 @router.get("/users", response_model=List[UserResponse])
@@ -100,7 +101,7 @@ async def create_user_submit(
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/users-management", status_code=status.HTTP_303_SEE_OTHER
+        url=USER_MANAGEMENT_ROUTE, status_code=status.HTTP_303_SEE_OTHER
     )
 
 
@@ -337,7 +338,7 @@ async def edit_user_submit(
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/users-management", status_code=status.HTTP_303_SEE_OTHER
+        url=USER_MANAGEMENT_ROUTE, status_code=status.HTTP_303_SEE_OTHER
     )
 
 
@@ -419,5 +420,5 @@ async def delete_user_submit(
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/users-management", status_code=status.HTTP_303_SEE_OTHER
+        url=USER_MANAGEMENT_ROUTE, status_code=status.HTTP_303_SEE_OTHER
     )
