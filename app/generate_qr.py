@@ -1,10 +1,12 @@
-import os
 import datetime
+import os
+
 import qrcode
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
+
 
 class GenerateQRService:
     def generate_qr_code(seft, farm_id, base_url=os.getenv("PUBLIC_URL")):

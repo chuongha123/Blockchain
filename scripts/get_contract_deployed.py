@@ -3,7 +3,7 @@ from os import path
 
 from web3 import Web3
 
-w3 = Web3(Web3.HTTPProvider("https://your_rpc_url"))
+w3 = Web3(Web3.HTTPProvider("http://localhost:8000"))
 CONTRACT_JSON_PATH = path.join(path.abspath(path.dirname(__file__)), "../contract/IoTStorage.json")
 
 contract_address = "0xB5a8159bC208Afa56b7f05D02caA699738197035"

@@ -46,12 +46,12 @@ class UserResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    username: str = None
-    email: EmailStr = None
-    password: str = None
-    is_active: bool = None
-    role: str = None
-    link_product: str = None
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+    is_active: Optional[bool] = None
+    role: Optional[str] = None
+    link_product: Optional[str] = None
 
 
 class Token(BaseModel):

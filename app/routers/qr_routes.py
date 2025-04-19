@@ -1,8 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
 from app.generate_qr import GenerateQRService
-from app.model.user import User
-from app.security import get_current_active_user
 
 # Initialize QR code router
 router = APIRouter(tags=["qr"])
@@ -10,8 +8,9 @@ router = APIRouter(tags=["qr"])
 # Initialize service
 generate_qr_service = GenerateQRService()
 
+
 @router.get("/generate-qr/{farm_id}")
-async def create_qr_code(farm_id: str, current_user: User = Depends(get_current_active_user)):
+async def create_qr_code(farm_id: str):
     """Create QR code for device - Requires authentication"""
     try:
         qr_path = generate_qr_service.generate_qr_code(farm_id)
@@ -23,6 +22,7 @@ async def create_qr_code(farm_id: str, current_user: User = Depends(get_current_
             "error": "Cannot create QR code",
             "details": str(e)
         }
+
 
 @router.get("/generate-qr")
 async def create_qr_code():
@@ -36,4 +36,4 @@ async def create_qr_code():
         return {
             "error": "Cannot create QR code",
             "details": str(e)
-        } 
+        }
