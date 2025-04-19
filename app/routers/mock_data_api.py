@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from requests import Session
 
 from app.services.blockchain import BlockchainService
-from app.model.farm_data import FarmData
+from app.model.farm_data import Farm, FarmData
 from app.model.user import User
 from app.services.database import get_db
 from app.services.farm_report_service import FarmReportService
@@ -86,6 +86,11 @@ async def generate_mock_data(request: MockDataRequest, db: Session = Depends(get
         }
 
         try:
+            current_farm = db.query(Farm).filter(Farm.id == mock_data.farm_id).first()
+            if current_farm and current_farm.is_harvested:
+                raise HTTPException(
+                    status_code=400, detail=f"Farm {mock_data.farm_id} is harvested"
+                )
             # Call service to store data
             tx_hash = blockchain_service.store_sensor_data(
                 mock_data.farm_id, farm_payload

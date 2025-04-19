@@ -62,6 +62,10 @@ async def store_farm_data(data: FarmData, db: Session = Depends(get_db)):
             "product_id": data.product_id,
             "light_level": data.light_level,
         }
+        
+        current_farm = db.query(Farm).filter(Farm.id == data.farm_id).first()
+        if current_farm and current_farm.is_harvested:
+            raise HTTPException(status_code=400, detail=f"Farm {data.farm_id} is harvested")
 
         # Call service to store data
         tx_hash = blockchain_service.store_sensor_data(
