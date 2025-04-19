@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.generate_qr import GenerateQRService
+from app.services.generate_qr import GenerateQRService
 
 # Initialize QR code router
 router = APIRouter(tags=["qr"])

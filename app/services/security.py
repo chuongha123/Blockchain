@@ -10,7 +10,7 @@ from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_401_UNAUTHORIZED
 
-from app.database import get_db
+from app.services.database import get_db
 from app.model.user import User, TokenData
 
 # Security configurations

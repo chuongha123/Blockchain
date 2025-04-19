@@ -4,10 +4,10 @@ from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from app.blockchain import BlockchainService
+from app.services.blockchain import BlockchainService
 from app.model.farm_data import FarmData
 from app.model.user import User
-from app.security import get_optional_user
+from app.services.security import get_optional_user
 
 # Initialize API router
 router = APIRouter(prefix="/api/mock", tags=["mock"])

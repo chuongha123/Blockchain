@@ -3,8 +3,6 @@ import sys
 from logging.config import fileConfig
 import urllib.parse
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
 from sqlalchemy import create_engine
 
 from alembic import context
@@ -38,8 +36,7 @@ db_url = f"mysql+pymysql://{db_user}:{encoded_password}@{db_host}:{db_port}/{db_
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.model.user import User
-from app.database import Base
+from app.services.database import Base
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

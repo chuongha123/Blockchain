@@ -9,9 +9,9 @@ from app.constants.messages_constant import (
     USER_NOT_FOUND_ERROR_MESSAGE,
 )
 from app.constants.template_constant import ADMIN_ERROR_TEMPLATE
-from app.database import get_db
+from app.services.database import get_db
 from app.model.user import User, UserCreate, UserResponse, UserUpdate
-from app.security import check_admin_role, get_password_hash
+from app.services.security import check_admin_role, get_password_hash
 
 router = APIRouter(tags=["user"])
 # Initialize templates

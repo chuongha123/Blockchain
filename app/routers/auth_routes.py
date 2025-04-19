@@ -4,9 +4,9 @@ from datetime import timedelta
 
 from sqlalchemy.orm import Session
 
-from app.database import get_db
+from app.services.database import get_db
 from app.model.user import User, UserCreate, Token, UserResponse
-from app.security import (
+from app.services.security import (
     get_password_hash,
     authenticate_user,
     create_access_token,

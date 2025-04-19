@@ -6,8 +6,8 @@ from fastapi.templating import Jinja2Templates
 
 from app.constants.template_constant import ADMIN_ERROR_TEMPLATE
 from app.model.user import User
-from app.security import check_admin_role
-from app.blockchain import BlockchainService
+from app.services.security import check_admin_role
+from app.services.blockchain import BlockchainService
 from datetime import datetime
 
 router = APIRouter(tags=["farm"])
@@ -131,7 +131,7 @@ async def generate_random_farm_data(
     """Process mock data generation - Only admin can access"""
     try:
         from app.routers.mock_data_api import generate_random_product_id
-        from app.blockchain import BlockchainService
+        from app.services.blockchain import BlockchainService
         import random
 
         blockchain_service = BlockchainService()
@@ -210,7 +210,7 @@ async def generate_date_range_farm_data(
     """Generate farm data for a date range - Only admin can access"""
     try:
         from app.routers.mock_data_api import generate_random_product_id
-        from app.blockchain import BlockchainService
+        from app.services.blockchain import BlockchainService
         import random
         from datetime import datetime, timedelta
 
@@ -334,7 +334,7 @@ async def generate_specific_date_farm_data(
     """Generate farm data for a specific date - Only admin can access"""
     try:
         from app.routers.mock_data_api import generate_random_product_id
-        from app.blockchain import BlockchainService
+        from app.services.blockchain import BlockchainService
         import random
         from datetime import datetime, timedelta
 

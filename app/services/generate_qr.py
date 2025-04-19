@@ -33,6 +33,6 @@ class GenerateQRService:
         """Generate QR code for home page"""
         url = f"{os.getenv('PUBLIC_URL')}"
         qr = qrcode.make(url)
-        file_path = f"app/static/qr_codes/qr_home_page.png"
+        file_path = "app/static/qr_codes/qr_home_page.png"
         qr.save(file_path)
-        return f"qr_codes/qr_home_page.png"
+        return "qr_codes/qr_home_page.png"

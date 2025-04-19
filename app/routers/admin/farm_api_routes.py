@@ -1,9 +1,7 @@
-from types import NoneType
-
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app.generate_qr import GenerateQRService
+from app.services.generate_qr import GenerateQRService
 
 router = APIRouter(prefix="/farms", tags=["farm_api"])
 generate_qr_service = GenerateQRService()

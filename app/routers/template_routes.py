@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.security import get_optional_user, get_current_active_user
+from app.services.security import get_optional_user
 from app.model.user import User
 
 # Initialize templates router
@@ -38,7 +38,7 @@ async def farm_data(
 ):
     """Display farm information by device_id - Requires authentication"""
     # Import here to avoid circular import
-    from app.blockchain import BlockchainService
+    from app.services.blockchain import BlockchainService
 
     if not current_user or not current_user.is_active:
         return templates.TemplateResponse(

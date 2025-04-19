@@ -5,8 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from fastapi.exceptions import HTTPException
 
-from app.database import engine, Base
-from app.auth import router as auth_router
+from app.services.database import engine, Base
+from app.routers.auth_routes import router as auth_router
 from app.routers.template_routes import router as template_router
 from app.routers.api_routes import router as api_router
 from app.routers.qr_routes import router as qr_router

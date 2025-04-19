@@ -4,15 +4,15 @@ from pydantic import BaseModel
 from app.routers.admin.farm_api_routes import router as farm_api_router
 from app.model.farm_data import FarmData
 from app.model.user import User
-from app.security import get_current_active_user
+from app.services.security import get_current_active_user
 
 # Initialize API router
 router = APIRouter(prefix="/api", tags=["api"])
 router.include_router(farm_api_router)
 
 # Import necessary services
-from app.blockchain import BlockchainService
-from app.generate_qr import GenerateQRService
+from app.services.blockchain import BlockchainService
+from app.services.generate_qr import GenerateQRService
 
 # Initialize services
 blockchain_service = BlockchainService()
