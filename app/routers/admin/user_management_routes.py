@@ -100,7 +100,7 @@ async def create_user_submit(
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/user-management", status_code=status.HTTP_303_SEE_OTHER
+        url="/admin/users-management", status_code=status.HTTP_303_SEE_OTHER
     )
 
 

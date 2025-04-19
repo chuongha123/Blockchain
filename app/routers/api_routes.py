@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.routers.admin.farm_api_routes import router as farm_api_router
 from app.model.farm_data import FarmData
 from app.model.user import User
 from app.security import get_current_active_user
 
 # Initialize API router
 router = APIRouter(prefix="/api", tags=["api"])
+router.include_router(farm_api_router)
 
 # Import necessary services
 from app.blockchain import BlockchainService
@@ -25,7 +27,7 @@ class ContactForm(BaseModel):
 
 @router.get("/farm/{farm_id}")
 async def get_farm_data(
-    farm_id: str, current_user: User = Depends(get_current_active_user)
+        farm_id: str, current_user: User = Depends(get_current_active_user)
 ):
     """API returns farm data in JSON format - Requires authentication"""
     data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
@@ -92,7 +94,7 @@ async def send_contact_email(contact: ContactForm):
 
         # Check email configuration
         if not all(
-            [EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]
+                [EMAIL_HOST, EMAIL_PORT, EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_RECEIVER]
         ):
             return {
                 "success": False,
