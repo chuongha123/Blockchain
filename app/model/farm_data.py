@@ -56,6 +56,7 @@ class Farm(Base):
 
     # Foreign key to User
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    is_harvested = Column(Boolean, default=False)
 
     # Relationship with User
     user = relationship("User", back_populates="farms")

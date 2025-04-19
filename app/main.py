@@ -47,7 +47,6 @@ app.include_router(api_router)
 app.include_router(qr_router)
 app.include_router(admin_router)
 app.include_router(mock_data_router)
-app.include_router(farm_router)
 app.include_router(user_farm_router)
 
 # Start the application

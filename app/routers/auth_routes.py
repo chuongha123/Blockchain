@@ -103,14 +103,6 @@ async def read_users_me(
         
         if latest_report:
             farm_reports[farm.id] = latest_report
-            
-        # Get product info to determine if harvested
-        product = db.query(Product).filter(Product.id == farm.id).first()
-        if product:
-            # Add is_harvested attribute to farm object
-            setattr(farm, 'is_harvested', product.is_harvested)
-        else:
-            setattr(farm, 'is_harvested', False)
     
     # Render template with user and farm data
     return templates.TemplateResponse(

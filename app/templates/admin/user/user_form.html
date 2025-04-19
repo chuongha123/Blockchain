@@ -67,21 +67,6 @@
                         {% endif %}
                     </select>
                     <small class="form-text text-muted">Hold Ctrl (or Cmd on Mac) to select multiple farms</small>
-                    
-                    <!-- Debug info -->
-                    <div class="mt-2 alert alert-info">
-                        <p><strong>Debug Info:</strong></p>
-                        <p>Farm count: {{ farms|length if farms else 0 }}</p>
-                        {% if farms %}
-                            <ul>
-                                {% for farm in farms %}
-                                <li>{{ farm.name }} (ID: {{ farm.id }})</li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No farms found. Please add farms first.</p>
-                        {% endif %}
-                    </div>
                 </div>
                 
                 <div class="mb-3 form-check">
