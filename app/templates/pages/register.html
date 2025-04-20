@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Đăng ký - Farm's Đom Đóm</title>
+        <!-- Bootstrap CSS -->
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+        />
+        <!-- Font Awesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', path='/css/base.css') }}" />
+    </head>
+    <body class="bg-light">
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white text-center py-3">
+                            <h4 class="mb-0"><i class="fas fa-user-plus"></i> Đăng ký tài khoản</h4>
+                        </div>
+                        <div class="card-body p-4">
+                            <div id="registerMessage"></div>
+                            <form id="registerForm" class="needs-validation" novalidate>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Tên đăng nhập</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="username"
+                                        name="username"
+                                        required
+                                    />
+                                    <div class="invalid-feedback">Vui lòng nhập tên đăng nhập</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input
+                                        type="email"
+                                        class="form-control"
+                                        id="email"
+                                        name="email"
+                                        required
+                                    />
+                                    <div class="invalid-feedback">Vui lòng nhập email hợp lệ</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Mật khẩu</label>
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="password"
+                                        name="password"
+                                        required
+                                        minlength="6"
+                                    />
+                                    <div class="invalid-feedback">Mật khẩu cần ít nhất 6 ký tự</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label"
+                                        >Xác nhận mật khẩu</label
+                                    >
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="confirmPassword"
+                                        required
+                                    />
+                                    <div class="invalid-feedback">Mật khẩu không khớp</div>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary" id="registerBtn">
+                                        <span id="registerBtnText">Đăng ký</span>
+                                        <span
+                                            id="registerSpinner"
+                                            class="spinner-border spinner-border-sm d-none"
+                                            aria-hidden="true"
+                                        ></span>
+                                    </button>
+                                    <a href="/app/static" class="btn btn-outline-secondary"
+                                        >Quay lại trang chủ</a
+                                    >
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer text-center py-3">
+                            <p class="mb-0">Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <!-- Register script -->
+        <script>
+            document.getElementById('registerForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Validate form
+                const form = this;
+                if (!form.checkValidity()) {
+                    e.stopPropagation();
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                // Check if passwords match
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (password !== confirmPassword) {
+                    document
+                        .getElementById('confirmPassword')
+                        .setCustomValidity('Passwords do not match');
+                    form.classList.add('was-validated');
+                    return;
+                } else {
+                    document.getElementById('confirmPassword').setCustomValidity('');
+                }
+
+                const registerBtn = document.getElementById('registerBtn');
+                const registerBtnText = document.getElementById('registerBtnText');
+                const registerSpinner = document.getElementById('registerSpinner');
+                const registerMessage = document.getElementById('registerMessage');
+
+                // Show loading state
+                registerBtn.disabled = true;
+                registerBtnText.textContent = 'Đang đăng ký...';
+                registerSpinner.classList.remove('d-none');
+                registerMessage.innerHTML = '';
+
+                try {
+                    const userData = {
+                        username: document.getElementById('username').value,
+                        email: document.getElementById('email').value,
+                        password: password,
+                    };
+
+                    const response = await fetch('/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Show success message
+                        registerMessage.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...
+                        </div>
+                    `;
+
+                        // Reset form
+                        form.reset();
+                        form.classList.remove('was-validated');
+
+                        // Redirect to login page after 2 seconds
+                        setTimeout(() => {
+                            window.location.href = '/login';
+                        }, 2000);
+                    } else {
+                        // Show error message
+                        registerMessage.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i> ${data.detail || 'Đăng ký thất bại. Vui lòng thử lại.'}
+                        </div>
+                    `;
+
+                        // Reset button state
+                        registerBtn.disabled = false;
+                        registerBtnText.textContent = 'Đăng ký';
+                        registerSpinner.classList.add('d-none');
+                    }
+                } catch (error) {
+                    // Show error message
+                    registerMessage.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Lỗi kết nối: ${error.message}
+                    </div>
+                `;
+
+                    // Reset button state
+                    registerBtn.disabled = false;
+                    registerBtnText.textContent = 'Đăng ký';
+                    registerSpinner.classList.add('d-none');
+                }
+            });
+
+            // Validate password match on input
+            document.getElementById('confirmPassword').addEventListener('input', function () {
+                const password = document.getElementById('password').value;
+                if (this.value !== password) {
+                    this.setCustomValidity('Mật khẩu không khớp');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+
+            document.getElementById('password').addEventListener('input', function () {
+                const confirmPassword = document.getElementById('confirmPassword');
+                if (confirmPassword.value && confirmPassword.value !== this.value) {
+                    confirmPassword.setCustomValidity('Mật khẩu không khớp');
+                } else {
+                    confirmPassword.setCustomValidity('');
+                }
+            });
+        </script>
+    </body>
+</html>

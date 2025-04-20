@@ -12,7 +12,7 @@ export class TableManager {
         this.currentPage = 1;
         this.currentSortField = 'timestamp';
         this.currentSortDirection = 'desc';
-        
+
         // DOM elements
         this.tableBody = document.getElementById('dataTableBody');
         this.paginationElement = document.getElementById('pagination');
@@ -319,4 +319,4 @@ export class TableManager {
         this.currentPage = 1; // Reset to first page
         this.updateTable();
     }
-} 
+}

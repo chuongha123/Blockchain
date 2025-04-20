@@ -10,7 +10,7 @@ export class FilterManager {
         this.currentData = [...data];
         this.startDate = null;
         this.endDate = null;
-        
+
         // DOM Elements
         this.startDateInput = document.getElementById('startDate');
         this.endDateInput = document.getElementById('endDate');
@@ -23,15 +23,15 @@ export class FilterManager {
         if (this.applyFilterBtn) {
             this.applyFilterBtn.addEventListener('click', () => this.applyDateFilter());
         }
-        
+
         if (this.resetFilterBtn) {
             this.resetFilterBtn.addEventListener('click', () => this.resetDateFilter());
         }
-        
+
         // Set initial date range
         this.setDateRangeFromData();
     }
-    
+
     // Set min and max dates from data
     setDateRangeFromData() {
         try {
@@ -83,7 +83,7 @@ export class FilterManager {
             }
 
             let filteredData = [...this.currentData];
-            
+
             if (this.startDate || this.endDate) {
                 filteredData = this.currentData.filter(item => {
                     const itemTimestamp = Number(item.timestamp);
@@ -128,11 +128,11 @@ export class FilterManager {
             return [...this.currentData]; // Return unfiltered data on error
         }
     }
-    
+
     // Update the base data
     setCurrentData(data) {
         this.currentData = [...data];
         // Optionally update date range
         this.setDateRangeFromData();
     }
-} 
+}

@@ -1,0 +1,140 @@
+{% extends "layouts/base.html" %} {% block title %}Trang cá nhân{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/profile.css') }}" />
+{% endblock %} {% block content %}
+<!-- Toast container for notifications -->
+<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<div class="container mt-5">
+    <div class="profile-header d-flex">
+        <div class="profile-avatar">{{ current_user.username[0] | upper }}</div>
+        <div>
+            <h2>{{ current_user.username }}</h2>
+            <p><i class="fas fa-envelope"></i> {{ current_user.email }}</p>
+            <p><i class="fas fa-user-tag"></i> Vai trò: {{ current_user.role }}</p>
+            <p>
+                <i class="fas fa-calendar-alt"></i> Tham gia: {{
+                current_user.created_at.strftime('%d/%m/%Y') }}
+            </p>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3><i class="fas fa-leaf"></i> Nông trại của tôi</h3>
+        <a href="/user-farms/link-farm" class="btn btn-primary">
+            <i class="fas fa-link"></i> Liên kết nông trại
+        </a>
+    </div>
+
+    {% if farms %}
+    <div class="row">
+        {% for farm in farms %}
+        <div class="col-md-6 col-lg-4">
+            <div
+                class="card farm-card {% if farm.is_harvested %}harvested{% else %}not-harvested{% endif %}"
+            >
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ farm.name }}</h5>
+                    <span
+                        class="badge {% if farm.is_harvested %}badge-harvested{% else %}badge-not-harvested{% endif %}"
+                    >
+                        {% if farm.is_harvested %}Đã thu hoạch{% else %}Đang canh tác{% endif %}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text"><strong>ID:</strong> {{ farm.id }}</p>
+                    <p class="card-text">
+                        <strong>Mô tả:</strong> {{ farm.description or "Không có mô tả" }}
+                    </p>
+                    <p class="card-text">
+                        <strong>Ngày tạo:</strong> {{ farm.created_at.strftime('%d/%m/%Y') }}
+                    </p>
+                </div>
+
+                {% if farm_reports and farm.id in farm_reports %}
+                <div class="farm-stats">
+                    <h6>Chỉ số mới nhất:</h6>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-temperature-high stat-icon text-danger"></i>
+                                <div>
+                                    <small class="text-muted">Nhiệt độ</small>
+                                    <p class="mb-0">{{ farm_reports[farm.id].temperature }}°C</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-tint stat-icon text-primary"></i>
+                                <div>
+                                    <small class="text-muted">Độ ẩm</small>
+                                    <p class="mb-0">{{ farm_reports[farm.id].humidity }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-water stat-icon text-info"></i>
+                                <div>
+                                    <small class="text-muted">Độ ẩm đất</small>
+                                    <p class="mb-0">{{ farm_reports[farm.id].water_level }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-sun stat-icon text-warning"></i>
+                                <div>
+                                    <small class="text-muted">Độ sáng</small>
+                                    <p class="mb-0">{{ farm_reports[farm.id].light_level }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- QR Code section - now always visible for harvested farms -->
+                {% if farm.is_harvested and farm.qr_code_url %}
+                <div class="qr-container">
+                    <div class="text-center mt-3">
+                        <h6>Mã QR truy xuất</h6>
+                        <div class="qr-image-container">
+                            <img
+                                src="{{ farm.qr_code_url }}"
+                                alt="QR Code"
+                                class="img-fluid"
+                                style="max-width: 150px"
+                            />
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <!-- QR Code container (initially hidden) -->
+                <div class="qr-container" style="display: none"></div>
+                {% endif %}
+
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="/farm/{{ farm.id }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-chart-line"></i> Xem chi tiết
+                    </a>
+                    {% if not farm.is_harvested %}
+                    <button class="btn btn-success btn-sm harvest-btn" data-farm-id="{{ farm.id }}">
+                        <i class="fas fa-seedling"></i> Đánh dấu thu hoạch
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Bạn chưa có nông trại nào. Hãy nhấn vào nút "Liên kết
+        nông trại" để thêm nông trại vào tài khoản của bạn.
+    </div>
+    {% endif %}
+</div>
+{% endblock %} {% block extra_js %}
+<script src="{{ url_for('static', path='/js/profile.js') }}"></script>
+{% endblock %}

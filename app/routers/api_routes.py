@@ -1,18 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
-from sqlalchemy.orm import Session
+from app.services.security import get_optional_user
+from app.services.farm_report_service import FarmReportService
 
-from app.database import get_db
-from app.model.farm_data import FarmData
+from app.routers.farm_routes import router as farm_api_router
+from app.model.farm_data import FarmData, Farm
 from app.model.user import User
-from app.security import get_current_active_user
+from app.services.security import get_current_active_user
+from app.utils import generate_random_report_id
+from sqlalchemy.orm import Session
+from app.services.database import get_db
 
 # Initialize API router
 router = APIRouter(prefix="/api", tags=["api"])
+router.include_router(farm_api_router)
 
 # Import necessary services
-from app.blockchain import BlockchainService
-from app.generate_qr import GenerateQRService
+from app.services.blockchain import BlockchainService
+from app.services.generate_qr import GenerateQRService
 
 # Initialize services
 blockchain_service = BlockchainService()
@@ -25,9 +30,15 @@ class ContactForm(BaseModel):
     message: str
 
 
+class FarmCreate(BaseModel):
+    id: str
+    name: str
+    description: str = None
+
+
 @router.get("/farm/{farm_id}")
 async def get_farm_data(
-    farm_id: str, current_user: User = Depends(get_current_active_user)
+    farm_id: str, current_user: User = Depends(get_optional_user)
 ):
     """API returns farm data in JSON format - Requires authentication"""
     data = blockchain_service.get_sensor_data_by_farm_id(farm_id)
@@ -39,7 +50,7 @@ async def get_farm_data(
 
 
 @router.post("/farm")
-async def store_farm_data(data: FarmData):
+async def store_farm_data(data: FarmData, db: Session = Depends(get_db)):
     """API stores sensor data into blockchain - Requires authentication"""
     try:
         # Prepare data to store into blockchain
@@ -51,6 +62,10 @@ async def store_farm_data(data: FarmData):
             "product_id": data.product_id,
             "light_level": data.light_level,
         }
+        
+        current_farm = db.query(Farm).filter(Farm.id == data.farm_id).first()
+        if current_farm and current_farm.is_harvested:
+            raise HTTPException(status_code=400, detail=f"Farm {data.farm_id} is harvested")
 
         # Call service to store data
         tx_hash = blockchain_service.store_sensor_data(
@@ -62,6 +77,17 @@ async def store_farm_data(data: FarmData):
                 status_code=500,
                 detail="Cannot store data into blockchain. Please check connection and try again.",
             )
+
+        FarmReportService.create_report(
+            db=db,
+            report_id=generate_random_report_id(),
+            farm_id=data.farm_id,
+            product_id=data.product_id,
+            temperature=data.temperature,
+            humidity=data.humidity,
+            water_level=data.water_level,
+            light_level=data.light_level,
+        )
 
         # Return success with transaction hash
         return {
@@ -141,3 +167,78 @@ async def send_contact_email(contact: ContactForm):
 
     except Exception as e:
         return {"success": False, "message": f"Không thể gửi email: {str(e)}"}
+
+
+@router.get("/debug/farms")
+async def debug_farms(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)
+):
+    """API để debug danh sách farms"""
+    # Kiểm tra quyền admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Không có quyền truy cập"
+        )
+
+    farms = db.query(Farm).all()
+
+    # Convert farms to dict for JSON response
+    farms_data = []
+    for farm in farms:
+        farm_dict = {
+            "id": farm.id,
+            "name": farm.name,
+            "description": farm.description,
+            "user_id": farm.user_id,
+            "created_at": str(farm.created_at),
+            "updated_at": str(farm.updated_at),
+        }
+        farms_data.append(farm_dict)
+
+    return {"success": True, "count": len(farms_data), "farms": farms_data}
+
+
+@router.post("/farms/add")
+async def add_farm(
+    farm: FarmCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """API để thêm farm mới"""
+    # Kiểm tra quyền admin
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Không có quyền truy cập"
+        )
+
+    # Kiểm tra farm_id đã tồn tại chưa
+    existing_farm = db.query(Farm).filter(Farm.id == farm.id).first()
+    if existing_farm:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Farm với ID '{farm.id}' đã tồn tại",
+        )
+
+    # Tạo farm mới
+    new_farm = Farm(id=farm.id, name=farm.name, description=farm.description)
+
+    try:
+        db.add(new_farm)
+        db.commit()
+        db.refresh(new_farm)
+
+        return {
+            "success": True,
+            "message": f"Đã thêm thành công farm: {farm.name}",
+            "farm": {
+                "id": new_farm.id,
+                "name": new_farm.name,
+                "description": new_farm.description,
+            },
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lỗi khi thêm farm: {str(e)}",
+        )

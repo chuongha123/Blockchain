@@ -1,0 +1,227 @@
+{% extends "layouts/admin_base.html" %} {% block title %}Farm Management{% endblock %} {% block
+content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <h1>Farm Management</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Farm Management</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- DB Farm Quản lý -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div
+                class="card-header bg-success text-white d-flex justify-content-between align-items-center"
+            >
+                <h5 class="mb-0">Quản lý Farm</h5>
+                <a href="/admin/farm-management/add" class="btn btn-sm btn-light">
+                    <i class="fas fa-plus"></i> Thêm Farm mới
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Farm ID</th>
+                                <th>Tên Farm</th>
+                                <th>Mô tả</th>
+                                <th>Người dùng</th>
+                                <th>Ngày tạo</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="db-farms-list">
+                            {% for farm in db_farms %}
+                            <tr>
+                                <td>{{ farm.id }}</td>
+                                <td>{{ farm.name }}</td>
+                                <td>{{ farm.description }}</td>
+                                <td>{{ farm.user_id }}</td>
+                                <td>{{ farm.created_at }}</td>
+                                <td colspan="6" class="text-center">
+                                    <a
+                                        href="/admin/farm-management/{{ farm.id }}/edit"
+                                        class="btn btn-sm btn-primary"
+                                    >
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a
+                                        href="/admin/farm-management/{{ farm.id }}/delete"
+                                        class="btn btn-sm btn-danger"
+                                    >
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <h3>Dữ liệu Blockchain</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <a href="/admin/farm-management/generate" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Tạo dữ liệu mẫu
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if farm_list %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Farm ID</th>
+                        <th>Số lượng dữ liệu</th>
+                        <th>Lần cập nhật cuối</th>
+                        <th>Nhiệt độ gần nhất</th>
+                        <th>Độ ẩm gần nhất</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for farm in farm_list %}
+                    <tr>
+                        <td>{{ farm.farmId }}</td>
+                        <td>{{ farm.dataCount }}</td>
+                        <td>{{ farm.lastUpdate }}</td>
+                        <td>{{ farm.lastTemperature }} °C</td>
+                        <td>{{ farm.lastHumidity }}%</td>
+                        <td>
+                            <a
+                                href="/farm/{{ farm.farmId }}"
+                                class="btn btn-sm btn-info"
+                                target="_blank"
+                                title="Xem chi tiết"
+                            >
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteFarmModal"
+                                data-farm-id="{{ farm.farmId }}"
+                                title="Xóa dữ liệu"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            {% if request.query_params %} Không tìm thấy dữ liệu nông trại phù hợp với điều kiện tìm
+            kiếm. {% else %} Không có dữ liệu nông trại nào trong hệ thống. {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div
+    class="modal fade"
+    id="deleteFarmModal"
+    tabindex="-1"
+    aria-labelledby="deleteFarmModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteFarmModalLabel">Xác nhận xóa dữ liệu</h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Bạn có chắc chắn muốn xóa dữ liệu của nông trại
+                    <strong id="deleteFarmId"></strong>?
+                </p>
+                <p class="text-danger"><small>Lưu ý: Hành động này không thể hoàn tác.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <fieldset class="d-inline">
+                    <form id="deleteFarmForm" method="POST" action="/admin/farm-management/delete">
+                        <input type="hidden" id="deleteFarmIdInput" name="farmId" value="" />
+                        <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                    </form>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Handle delete farm modal
+        const deleteFarmModal = document.getElementById('deleteFarmModal');
+        if (deleteFarmModal) {
+            deleteFarmModal.addEventListener('show.bs.modal', function (event) {
+                // Button that triggered the modal
+                const button = event.relatedTarget;
+                // Extract farm ID from data attribute
+                const farmId = button.getAttribute('data-farm-id');
+
+                // Update the modal's content
+                const farmIdElement = document.getElementById('deleteFarmId');
+                const farmIdInput = document.getElementById('deleteFarmIdInput');
+
+                if (farmIdElement) farmIdElement.textContent = farmId;
+                if (farmIdInput) farmIdInput.value = farmId;
+            });
+        }
+
+        listenHarvestClick();
+    });
+
+    function listenHarvestClick() {
+        const listBtn = document.querySelectorAll('.harvest-btn');
+        listBtn.forEach(item => {
+            item.onclick = async ev => {
+                const checked = ev.target.checked;
+                const farmId = ev.target.dataset.farmId;
+                const token = localStorage.getItem('access_token');
+                fetch(`/api/farms/${farmId}/harvest`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        is_harvest: checked,
+                    }),
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        console.log('qr_code: ', data);
+                    });
+            };
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,47 @@
+<link rel="stylesheet" href="/static/css/admin/sidebar.css" />
+
+<div class="admin-sidebar">
+    <div class="px-3 mb-3">
+        <h5>Admin Dashboard</h5>
+        <p class="small text-muted">{{ current_user.username }}</p>
+    </div>
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="/admin">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+        </li>
+        <li class="nav-item">
+            <a
+                class="nav-link {% if '/admin/users-management' in request.path %}active{% endif %}"
+                href="/admin/users-management"
+            >
+                <i class="fas fa-users"></i> User Management
+            </a>
+        </li>
+        <li class="nav-item">
+            <a
+                class="nav-link {% if '/admin/farm-management' in request.path %}active{% endif %}"
+                href="/admin/farm-management"
+            >
+                <i class="fas fa-leaf"></i> Farm Management
+            </a>
+        </li>
+        <li class="nav-item">
+            <a
+                class="nav-link {% if '/admin/product-management' in request.path %}active{% endif %}"
+                href="/admin/product-management"
+            >
+                <i class="fas fa-leaf"></i> Product Management
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/"> <i class="fas fa-home"></i> Home </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="sidebarLogoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    </ul>
+</div>

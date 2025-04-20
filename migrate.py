@@ -3,6 +3,7 @@
 
 import argparse
 import subprocess
+import sys
 
 
 def run_command(command):
@@ -78,4 +79,57 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Lấy tham số dòng lệnh
+    if len(sys.argv) < 2:
+        print("Usage: python migrate.py [upgrade|downgrade|heads|current|history|merge|<revision>]")
+        sys.exit(1)
+
+    action = sys.argv[1]
+
+    # Các lệnh Alembic tương ứng
+    commands = {
+        "upgrade": "alembic upgrade head",
+        "downgrade": "alembic downgrade -1",
+        "heads": "alembic heads",
+        "current": "alembic current",
+        "history": "alembic history",
+        "merge": "alembic merge heads",
+        "heads-verbose": "alembic heads --verbose"
+    }
+
+    if action in commands:
+        cmd = commands[action]
+    elif action.startswith("up:"):
+        # Nâng cấp đến revision cụ thể
+        revision = action[3:]
+        cmd = f"alembic upgrade {revision}"
+    elif action.startswith("down:"):
+        # Hạ cấp đến revision cụ thể
+        revision = action[5:]
+        cmd = f"alembic downgrade {revision}"
+    else:
+        # Xử lý các trường hợp đặc biệt
+        if action == "upgrade-heads":
+            cmd = "alembic upgrade heads"
+        else:
+            # Coi như là revision ID
+            cmd = f"alembic upgrade {action}"
+
+    # Thực thi lệnh
+    print(f"Running: {cmd}")
+    result = subprocess.run(cmd, shell=True)
+
+    # Kiểm tra kết quả
+    if result.returncode != 0:
+        print(f"FAILED: {cmd}")
+        # Hiển thị thông tin về các revision hiện tại để giúp debug
+        print("\nCurrent migration status:")
+        subprocess.run("alembic current", shell=True)
+        print("\nHeads information:")
+        subprocess.run("alembic heads --verbose", shell=True)
+
+        if "Multiple head revisions are present" in str(result.stderr):
+            print("\nFix suggestion: Run 'python migrate.py upgrade-heads' to upgrade all heads")
+            print("Or run 'python migrate.py heads-verbose' to see all available heads.")
+    else:
+        print(f"SUCCESS: {cmd}")

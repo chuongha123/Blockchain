@@ -9,22 +9,25 @@ from app.constants.messages_constant import (
     USER_NOT_FOUND_ERROR_MESSAGE,
 )
 from app.constants.template_constant import ADMIN_ERROR_TEMPLATE
-from app.database import get_db
+from app.services.database import get_db
 from app.model.user import User, UserCreate, UserResponse, UserUpdate
-from app.security import check_admin_role, get_password_hash
+from app.model.farm_data import Farm
+from app.services.security import check_admin_role, get_password_hash
 
 router = APIRouter(tags=["user"])
 # Initialize templates
 templates = Jinja2Templates(directory="app/templates")
 
-USER_FORM_TEMPLATE = "admin/user/user_form.html"
-USER_DELETE_TEMPLATE = "admin/user/user_delete.html"
-USER_USERS_TEMPLATE = "admin/user/users.html"
+USER_FORM_TEMPLATE = "pages/admin/user/user_form.html"
+USER_DELETE_TEMPLATE = "pages/admin/user/user_delete.html"
+USER_USERS_TEMPLATE = "pages/admin/user/users.html"
+DASHBOARD_TEMPLATE = "pages/admin/dashboard.html"
+USER_MANAGEMENT_ROUTE = "/admin/users-management"
 
 
 @router.get("/users", response_model=List[UserResponse])
 async def get_users(
-    db: Session = Depends(get_db), current_user: User = Depends(check_admin_role)
+    db: Session = Depends(get_db), _: User = Depends(check_admin_role)
 ):
     """Get all users - Only admin can access"""
     users = db.query(User).all()
@@ -34,12 +37,49 @@ async def get_users(
 # Create user routes - These need to come BEFORE the parameterized routes
 @router.get("/users-management/add", response_class=HTMLResponse)
 async def create_user_form(
-    request: Request, current_user: User = Depends(check_admin_role)
+    request: Request, 
+    db: Session = Depends(get_db),
+    current_user: User = Depends(check_admin_role)
 ):
     """Form create user - Only admin can access"""
+    # Get all farms for the form dropdown
+    farms = db.query(Farm).all()
+    
+    # Debug: In ra số lượng farm
+    print(f"DEBUG: Số lượng farm tìm được: {len(farms)}")
+    if farms:
+        for farm in farms:
+            print(f"DEBUG: Farm ID: {farm.id}, Farm Name: {farm.name}")
+    else:
+        print("DEBUG: Không tìm thấy farm nào trong cơ sở dữ liệu")
+        
+        # Tạo farm mẫu nếu không có farm nào
+        try:
+            sample_farms = [
+                Farm(id="FARM-001", name="Nông trại 1", description="Nông trại mẫu 1"),
+                Farm(id="FARM-002", name="Nông trại 2", description="Nông trại mẫu 2"),
+                Farm(id="FARM-003", name="Nông trại 3", description="Nông trại mẫu 3")
+            ]
+            
+            for farm in sample_farms:
+                db.add(farm)
+            
+            db.commit()
+            print("DEBUG: Đã tạo 3 farm mẫu")
+            
+            # Lấy lại danh sách farm sau khi tạo
+            farms = db.query(Farm).all()
+        except Exception as e:
+            print(f"DEBUG: Lỗi khi tạo farm mẫu: {str(e)}")
+    
     return templates.TemplateResponse(
         USER_FORM_TEMPLATE,
-        {"request": request, "current_user": current_user, "user": None},
+        {
+            "request": request, 
+            "current_user": current_user, 
+            "user": None,
+            "farms": farms
+        },
     )
 
 
@@ -51,7 +91,7 @@ async def create_user_submit(
     password: str = Form(...),
     role: str = Form(...),
     is_active: bool = Form(True),
-    link_product: Optional[str] = Form(None),
+    farm_ids: List[str] = Form([]),
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role),
 ):
@@ -59,12 +99,14 @@ async def create_user_submit(
     # Check username and email
     db_user_by_username = db.query(User).filter(User.username == username).first()
     if db_user_by_username:
+        farms = db.query(Farm).all()
         return templates.TemplateResponse(
             USER_FORM_TEMPLATE,
             {
                 "request": request,
                 "current_user": current_user,
                 "user": None,
+                "farms": farms,
                 "error": USER_EXIST_ERROR_MESSAGE,
             },
             status_code=400,
@@ -72,12 +114,14 @@ async def create_user_submit(
 
     db_user_by_email = db.query(User).filter(User.email == email).first()
     if db_user_by_email:
+        farms = db.query(Farm).all()
         return templates.TemplateResponse(
             USER_FORM_TEMPLATE,
             {
                 "request": request,
                 "current_user": current_user,
                 "user": None,
+                "farms": farms,
                 "error": USER_EXIST_ERROR_MESSAGE,
             },
             status_code=400,
@@ -91,16 +135,25 @@ async def create_user_submit(
         hashed_password=hashed_password,
         is_active=is_active,
         role=role,
-        link_product=link_product,
+        link_product=farm_ids[0] if farm_ids else None,  # Backward compatibility with legacy field
     )
 
     # Save to database
     db.add(db_user)
     db.commit()
+    db.refresh(db_user)
+    
+    # Link farms to user
+    for farm_id in farm_ids:
+        farm = db.query(Farm).filter(Farm.id == farm_id).first()
+        if farm:
+            farm.user_id = db_user.id
+    
+    db.commit()
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/user-management", status_code=status.HTTP_303_SEE_OTHER
+        url=USER_MANAGEMENT_ROUTE, status_code=status.HTTP_303_SEE_OTHER
     )
 
 
@@ -219,7 +272,7 @@ async def admin_dashboard(
 ):
     """Admin dashboard page - Only admin can access"""
     return templates.TemplateResponse(
-        "admin/dashboard.html", {"request": request, "current_user": current_user}
+        DASHBOARD_TEMPLATE, {"request": request, "current_user": current_user}
     )
 
 
@@ -253,14 +306,28 @@ async def edit_user_form(
             {
                 "request": request,
                 "current_user": current_user,
-                "error": USER_NOT_FOUND_ERROR_MESSAGE,
+                "status_code": 404,
+                "detail": USER_NOT_FOUND_ERROR_MESSAGE,
             },
             status_code=404,
         )
-
+    
+    # Get all farms
+    farms = db.query(Farm).all()
+    
+    # Get user's farms
+    user_farms = db.query(Farm).filter(Farm.user_id == user_id).all()
+    user_farm_ids = [farm.id for farm in user_farms]
+    
     return templates.TemplateResponse(
         USER_FORM_TEMPLATE,
-        {"request": request, "current_user": current_user, "user": user},
+        {
+            "request": request, 
+            "current_user": current_user, 
+            "user": user,
+            "farms": farms,
+            "user_farm_ids": user_farm_ids
+        },
     )
 
 
@@ -273,71 +340,93 @@ async def edit_user_submit(
     password: Optional[str] = Form(None),
     role: str = Form(...),
     is_active: bool = Form(True),
-    link_product: Optional[str] = Form(None),
+    farm_ids: List[str] = Form([]),
     db: Session = Depends(get_db),
     current_user: User = Depends(check_admin_role),
 ):
     """Process edit user - Only admin can access"""
-    # Find user to update
-    db_user = db.query(User).filter(User.id == user_id).first()
-    if not db_user:
+    # Find user to edit
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
         return templates.TemplateResponse(
             ADMIN_ERROR_TEMPLATE,
             {
                 "request": request,
                 "current_user": current_user,
-                "error": USER_NOT_FOUND_ERROR_MESSAGE,
+                "status_code": 404,
+                "detail": USER_NOT_FOUND_ERROR_MESSAGE,
             },
             status_code=404,
         )
 
-    # Check username is exist in database
-    if username != db_user.username:
-        db_user_by_username = db.query(User).filter(User.username == username).first()
-        if db_user_by_username:
+    # Check username only if changed
+    if user.username != username:
+        db_user = db.query(User).filter(User.username == username).first()
+        if db_user:
+            farms = db.query(Farm).all()
+            user_farms = db.query(Farm).filter(Farm.user_id == user_id).all()
+            user_farm_ids = [farm.id for farm in user_farms]
             return templates.TemplateResponse(
                 USER_FORM_TEMPLATE,
                 {
                     "request": request,
                     "current_user": current_user,
-                    "user": db_user,
+                    "user": user,
+                    "farms": farms,
+                    "user_farm_ids": user_farm_ids,
                     "error": USER_EXIST_ERROR_MESSAGE,
                 },
                 status_code=400,
             )
 
-    # Check email is exist in database
-    if email != db_user.email:
-        db_user_by_email = db.query(User).filter(User.email == email).first()
-        if db_user_by_email:
+    # Check email only if changed
+    if user.email != email:
+        db_user = db.query(User).filter(User.email == email).first()
+        if db_user:
+            farms = db.query(Farm).all()
+            user_farms = db.query(Farm).filter(Farm.user_id == user_id).all()
+            user_farm_ids = [farm.id for farm in user_farms]
             return templates.TemplateResponse(
                 USER_FORM_TEMPLATE,
                 {
                     "request": request,
                     "current_user": current_user,
-                    "user": db_user,
+                    "user": user,
+                    "farms": farms,
+                    "user_farm_ids": user_farm_ids,
                     "error": USER_EXIST_ERROR_MESSAGE,
                 },
                 status_code=400,
             )
 
-    # Update user info
-    db_user.username = username
-    db_user.email = email
-    db_user.is_active = is_active
-    db_user.role = role
-    db_user.link_product = link_product
+    # Update user
+    user.username = username
+    user.email = email
+    user.role = role
+    user.is_active = is_active
+    user.link_product = farm_ids[0] if farm_ids else None  # Backward compatibility with legacy field
 
-    # Update password if have
+    # Only update password if provided
     if password:
-        db_user.hashed_password = get_password_hash(password)
+        user.hashed_password = get_password_hash(password)
 
-    # Save to database
+    # Update user's farms
+    # First, remove all existing farm connections
+    for farm in db.query(Farm).filter(Farm.user_id == user_id).all():
+        farm.user_id = None
+    
+    # Then, add new connections
+    for farm_id in farm_ids:
+        farm = db.query(Farm).filter(Farm.id == farm_id).first()
+        if farm:
+            farm.user_id = user_id
+    
+    # Save all changes
     db.commit()
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/users-management", status_code=status.HTTP_303_SEE_OTHER
+        url=USER_MANAGEMENT_ROUTE, status_code=status.HTTP_303_SEE_OTHER
     )
 
 
@@ -419,5 +508,5 @@ async def delete_user_submit(
 
     # Redirect to users management page
     return RedirectResponse(
-        url="/admin/users-management", status_code=status.HTTP_303_SEE_OTHER
+        url=USER_MANAGEMENT_ROUTE, status_code=status.HTTP_303_SEE_OTHER
     )

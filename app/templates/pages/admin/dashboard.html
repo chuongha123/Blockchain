@@ -1,0 +1,32 @@
+{% extends "layouts/admin_base.html" %} {% block title %}Admin Dashboard{% endblock %} {% block
+content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard</h1>
+        <div class="alert alert-info">
+            Welcome to the admin dashboard, {{ current_user.username }}!
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">User Management</h5>
+                <p class="card-text">View, add, edit and delete users in the system.</p>
+                <a href="/admin/users-management" class="btn btn-primary">Go to User Management</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Farm Data</h5>
+                <p class="card-text">View and manage farm data in the system.</p>
+                <a href="/admin/farm-management" class="btn btn-primary">Go to Farm Management</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

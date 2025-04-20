@@ -1,0 +1,85 @@
+<nav id="top" class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/app/static">
+            <img src="/static/images/logo.png" alt="FarmTech" height="40" />
+            GREENBLOCK
+        </a>
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#products">Sản phẩm</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/#solutions">Giải pháp</a>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="/#tracking">Truy xuất</a></li>
+                <li class="nav-item"><a class="nav-link" href="/#contact">Liên hệ</a></li>
+                {% if current_user %}
+                <li class="nav-item dropdown">
+                    <button
+                        class="nav-link dropdown-toggle btn btn-link"
+                        type="button"
+                        id="userDropdown"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <i class="fas fa-user"></i> {{ current_user.username }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% if current_user.role == "admin" %}
+                        <li>
+                            <a class="dropdown-item" href="/admin"
+                                ><i class="fas fa-tools"></i> Admin Panel</a
+                            >
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="/auth/users/me">Hồ sơ</a></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item" href="#" id="logoutBtn">Đăng xuất</a>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item"><a class="nav-link" href="/login">Đăng nhập</a></li>
+                <li class="nav-item"><a class="nav-link" href="/register">Đăng ký</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Smooth scrolling for anchor links with offset
+        document.querySelectorAll('a[href*="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href').split('#')[1];
+                if (!targetId || targetId === '') return;
+
+                const targetElement = document.querySelector('#' + targetId);
+                if (targetElement) {
+                    // Get the navbar height to use as offset (or use a fixed value)
+                    const navbarHeight = document.querySelector('.navbar').offsetHeight;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.scrollY - navbarHeight;
+                    console.log('offsetPosition', offsetPosition);
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth',
+                    });
+                }
+            });
+        });
+    });
+</script>

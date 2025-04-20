@@ -1,13 +1,17 @@
 import random
 import string
 from typing import Optional, List
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from requests import Session
 
-from app.blockchain import BlockchainService
-from app.model.farm_data import FarmData
+from app.model.farm_data import Farm, FarmData
 from app.model.user import User
-from app.security import get_optional_user
+from app.services.blockchain import BlockchainService
+from app.services.database import get_db
+from app.services.farm_report_service import FarmReportService
+from app.services.security import get_optional_user
 
 # Initialize API router
 router = APIRouter(prefix="/api/mock", tags=["mock"])
@@ -37,19 +41,8 @@ class MockDataRequest(BaseModel):
     product_id: Optional[str] = None
 
 
-def generate_random_product_id():
-    """Generate a random product ID string"""
-    letters = string.ascii_uppercase
-    numbers = string.digits
-    return (
-        "".join(random.choice(letters) for _ in range(3))
-        + "-"
-        + "".join(random.choice(numbers) for _ in range(5))
-    )
-
-
 @router.post("/generate")
-async def generate_mock_data(request: MockDataRequest):
+async def generate_mock_data(request: MockDataRequest, db: Session = Depends(get_db)):
     """Generate and store mock data in blockchain"""
     if request.count > 100:
         raise HTTPException(
@@ -83,9 +76,25 @@ async def generate_mock_data(request: MockDataRequest):
         }
 
         try:
+            current_farm = db.query(Farm).filter(Farm.id == mock_data.farm_id).first()
+            if current_farm and current_farm.is_harvested:
+                raise HTTPException(
+                    status_code=400, detail=f"Farm {mock_data.farm_id} is harvested"
+                )
             # Call service to store data
             tx_hash = blockchain_service.store_sensor_data(
                 mock_data.farm_id, farm_payload
+            )
+
+            FarmReportService.create_report(
+                db=db,
+                report_id=generate_random_product_id(),
+                farm_id=mock_data.farm_id,
+                product_id=mock_data.product_id,
+                temperature=mock_data.temperature,
+                humidity=mock_data.humidity,
+                water_level=mock_data.water_level,
+                light_level=mock_data.light_level,
             )
 
             if tx_hash:
@@ -93,9 +102,9 @@ async def generate_mock_data(request: MockDataRequest):
                     {"success": True, "data": farm_payload, "transaction_hash": tx_hash}
                 )
             else:
-                errors.append(f"Failed to store data batch {i+1}")
+                errors.append(f"Failed to store data batch {i + 1}")
         except Exception as e:
-            errors.append(f"Error in batch {i+1}: {str(e)}")
+            errors.append(f"Error in batch {i + 1}: {str(e)}")
 
     # Return result summary
     return {
@@ -110,7 +119,7 @@ async def generate_mock_data(request: MockDataRequest):
 
 @router.post("/bulk")
 async def generate_bulk_mock_data(
-    request: List[FarmData], current_user: User = Depends(get_optional_user)
+        request: List[FarmData], current_user: User = Depends(get_optional_user)
 ):
     """Store bulk custom data in blockchain"""
     if len(request) > 100:
@@ -141,9 +150,9 @@ async def generate_bulk_mock_data(
                     {"success": True, "data": farm_payload, "transaction_hash": tx_hash}
                 )
             else:
-                errors.append(f"Failed to store data item {i+1}")
+                errors.append(f"Failed to store data item {i + 1}")
         except Exception as e:
-            errors.append(f"Error in item {i+1}: {str(e)}")
+            errors.append(f"Error in item {i + 1}: {str(e)}")
 
     # Return result summary
     return {
