@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Liên kết nông trại{% endblock %} {% block extra_css %}
+{% extends "layouts/base.html" %} {% block title %}Liên kết nông trại{% endblock %} {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='/css/profile.css') }}" />
 <style>
     .farm-list {
@@ -82,7 +82,7 @@
                 </div>
 
                 <div class="link-button">
-                    <a href="/users/me" class="btn btn-secondary">
+                    <a href="/auth/users/me" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Quay lại trang cá nhân
                     </a>
                 </div>

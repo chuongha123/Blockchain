@@ -1,5 +1,7 @@
-from typing import List, Optional, Type
+from typing import Optional, Type
+
 from sqlalchemy.orm import Session
+
 from app.model.farm_data import FarmReport
 
 

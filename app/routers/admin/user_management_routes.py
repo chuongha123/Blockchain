@@ -18,15 +18,16 @@ router = APIRouter(tags=["user"])
 # Initialize templates
 templates = Jinja2Templates(directory="app/templates")
 
-USER_FORM_TEMPLATE = "admin/user/user_form.html"
-USER_DELETE_TEMPLATE = "admin/user/user_delete.html"
-USER_USERS_TEMPLATE = "admin/user/users.html"
+USER_FORM_TEMPLATE = "pages/admin/user/user_form.html"
+USER_DELETE_TEMPLATE = "pages/admin/user/user_delete.html"
+USER_USERS_TEMPLATE = "pages/admin/user/users.html"
+DASHBOARD_TEMPLATE = "pages/admin/dashboard.html"
 USER_MANAGEMENT_ROUTE = "/admin/users-management"
 
 
 @router.get("/users", response_model=List[UserResponse])
 async def get_users(
-    db: Session = Depends(get_db), current_user: User = Depends(check_admin_role)
+    db: Session = Depends(get_db), _: User = Depends(check_admin_role)
 ):
     """Get all users - Only admin can access"""
     users = db.query(User).all()
@@ -271,7 +272,7 @@ async def admin_dashboard(
 ):
     """Admin dashboard page - Only admin can access"""
     return templates.TemplateResponse(
-        "admin/dashboard.html", {"request": request, "current_user": current_user}
+        DASHBOARD_TEMPLATE, {"request": request, "current_user": current_user}
     )
 
 

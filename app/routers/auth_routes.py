@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm
-from datetime import timedelta
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
-from sqlalchemy.orm import Session
 import os
+from datetime import timedelta
 
-from app.services.database import get_db
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi.responses import HTMLResponse
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.templating import Jinja2Templates
+from sqlalchemy.orm import Session
+
+from app.model.farm_data import Farm, FarmReport
 from app.model.user import User, UserCreate, Token, UserResponse
-from app.model.farm_data import Farm, FarmReport, Product
+from app.services.database import get_db
 from app.services.security import (
     get_password_hash,
     authenticate_user,
@@ -57,7 +58,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/token", response_model=Token)
 def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
+        form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """Login and get JWT token"""
     user, error = authenticate_user(db, form_data.username, form_data.password)
@@ -86,27 +87,27 @@ def login_for_access_token(
 
 @router.get("/users/me", response_class=HTMLResponse)
 async def read_users_me(
-    request: Request,
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+        request: Request,
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db)
 ):
     """Get current user information with farms"""
     # Get user's farms using the relationship
     farms = db.query(Farm).filter(Farm.user_id == current_user.id).all()
     farm_reports = {}
-    
+
     # Get latest farm report for each farm
     for farm in farms:
         latest_report = db.query(FarmReport).filter(
             FarmReport.farm_id == farm.id
         ).order_by(FarmReport.created_at.desc()).first()
-        
+
         if latest_report:
             farm_reports[farm.id] = latest_report
-    
+
     # Render template with user and farm data
     return templates.TemplateResponse(
-        "profile.html",
+        "pages/profile.html",
         {
             "request": request,
             "current_user": current_user,

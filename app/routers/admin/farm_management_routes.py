@@ -14,9 +14,11 @@ from datetime import datetime
 
 router = APIRouter(tags=["farm"])
 templates = Jinja2Templates(directory="app/templates")
-FARM_GENERATE_TEMPLATE = "admin/farm_data_generator.html"
-FARM_FORM_TEMPLATE = "admin/farm/farm_form.html"
-FARM_DELETE_TEMPLATE = "admin/farm/farm_delete.html"
+FARM_GENERATE_TEMPLATE = "pages/admin/farm_data_generator.html"
+FARM_FORM_TEMPLATE = "pages/admin/farm/farm_form.html"
+FARM_DELETE_TEMPLATE = "pages/admin/farm/farm_delete.html"
+FARM_MANAGEMENT_TEMPLATE = "pages/admin/farm/farm_management.html";
+
 FARM_MANAGEMENT_ROUTE = "/admin/farm-management"
 
 
@@ -81,7 +83,7 @@ async def farm_management(
         db_farms = db.query(Farm).all()
 
         return templates.TemplateResponse(
-            "admin/farm/farm_management.html",
+            FARM_MANAGEMENT_TEMPLATE,
             {
                 "request": request,
                 "current_user": current_user,

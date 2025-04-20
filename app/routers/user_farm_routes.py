@@ -12,6 +12,7 @@ from app.services.security import get_current_active_user
 
 router = APIRouter(prefix="/user-farms", tags=["user-farms"])
 templates = Jinja2Templates(directory=os.path.join("app", "templates"))
+LINK_FARM_TEMPLATE = "pages/link_farm.html"
 
 
 @router.get("/link-farm", response_class=HTMLResponse)
@@ -28,7 +29,7 @@ async def link_farm_form(
     user_farms = db.query(Farm).filter(Farm.user_id == current_user.id).all()
 
     return templates.TemplateResponse(
-        "link_farm.html",
+        LINK_FARM_TEMPLATE,
         {
             "request": request,
             "current_user": current_user,

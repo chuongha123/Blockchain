@@ -28,6 +28,14 @@
             </a>
         </li>
         <li class="nav-item">
+            <a
+                class="nav-link {% if '/admin/product-management' in request.path %}active{% endif %}"
+                href="/admin/product-management"
+            >
+                <i class="fas fa-leaf"></i> Product Management
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="/"> <i class="fas fa-home"></i> Home </a>
         </li>
         <li class="nav-item">

@@ -20,7 +20,7 @@
     </head>
     <body>
         <!-- Navbar -->
-        {% include "navbar.html" %}
+        {% include "components/navbar.html" %}
 
         <!-- Main Content -->
         {% block content %}{% endblock %}
@@ -39,10 +39,10 @@
                     <div class="col-md-3">
                         <h5>Liên kết nhanh</h5>
                         <ul class="list-unstyled">
-                            <li><a href="/" class="text-light">Trang chủ</a></li>
-                            <li><a href="/#products" class="text-light">Sản phẩm</a></li>
-                            <li><a href="/#solutions" class="text-light">Giải pháp</a></li>
-                            <li><a href="/#contact" class="text-light">Liên hệ</a></li>
+                            <li><a href="/app/static" class="text-light">Trang chủ</a></li>
+                            <li><a href="/app/static#products" class="text-light">Sản phẩm</a></li>
+                            <li><a href="/app/static#solutions" class="text-light">Giải pháp</a></li>
+                            <li><a href="/app/static#contact" class="text-light">Liên hệ</a></li>
                         </ul>
                     </div>
                     <div class="col-md-3">
