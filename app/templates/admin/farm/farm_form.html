@@ -1,10 +1,5 @@
-{% extends "admin/admin_base.html" %}
-
-{% block title %}
-{% if farm %}Edit Farm{% else %}Add New Farm{% endif %}
-{% endblock %}
-
-{% block content %}
+{% extends "admin/admin_base.html" %} {% block title %} {% if farm %}Edit Farm{% else %}Add New
+Farm{% endif %} {% endblock %} {% block content %}
 <div class="container mt-5">
     <div class="row mb-4">
         <div class="col-md-6">
@@ -18,43 +13,63 @@
     </div>
 
     {% if error %}
-    <div class="alert alert-danger">
-        {{ error }}
-    </div>
+    <div class="alert alert-danger">{{ error }}</div>
     {% endif %}
 
     <div class="card">
         <div class="card-body">
-            <form method="post" action="{% if farm %}/admin/farms/{{ farm.id }}/edit{% else %}/admin/farms/create{% endif %}">
+            <form
+                method="post"
+                action="{% if farm %}/admin/farms/{{ farm.id }}/edit{% else %}/admin/farms/create{% endif %}"
+            >
                 {% if not farm %}
                 <div class="mb-3">
                     <label for="id" class="form-label">Farm ID</label>
-                    <input type="text" class="form-control" id="id" name="id" placeholder="FARM-001" required>
-                    <small class="form-text text-muted">Nhập ID duy nhất cho farm (ví dụ: FARM-001)</small>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="id"
+                        name="id"
+                        placeholder="FARM-001"
+                        required
+                    />
+                    <small class="form-text text-muted"
+                        >Nhập ID duy nhất cho farm (ví dụ: FARM-001)</small
+                    >
                 </div>
                 {% endif %}
-                
+
                 <div class="mb-3">
                     <label for="name" class="form-label">Farm Name</label>
-                    <input type="text" class="form-control" id="name" name="name" value="{% if farm %}{{ farm.name }}{% endif %}" required>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="name"
+                        name="name"
+                        value="{% if farm %}{{ farm.name }}{% endif %}"
+                        required
+                    />
                 </div>
-                
+
                 <div class="mb-3">
                     <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" name="description" rows="3">{% if farm %}{{ farm.description }}{% endif %}</textarea>
+                    <textarea class="form-control" id="description" name="description" rows="3">
+{% if farm %}{{ farm.description }}{% endif %}</textarea
+                    >
                 </div>
-                
+
                 {% if farm %}
                 <div class="mb-3">
                     <label class="form-label">Current User</label>
                     <p class="form-control-static">
-                        {% if farm.user %}
-                            {{ farm.user.username }} (ID: {{ farm.user.id }})
-                        {% else %}
-                            <span class="text-muted">No user assigned</span>
+                        {% if farm.user %} {{ farm.user.username }} (ID: {{ farm.user.id }}) {% else
+                        %}
+                        <span class="text-muted">No user assigned</span>
                         {% endif %}
                     </p>
-                    <small class="form-text text-muted">To change user assignment, please go to user management.</small>
+                    <small class="form-text text-muted"
+                        >To change user assignment, please go to user management.</small
+                    >
                 </div>
 
                 <div class="mb-3">
@@ -67,10 +82,10 @@
                     <p class="form-control-static">{{ farm.updated_at }}</p>
                 </div>
                 {% endif %}
-                
+
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> 
+                        <i class="fas fa-save"></i>
                         {% if farm %}Update Farm{% else %}Create Farm{% endif %}
                     </button>
                 </div>
@@ -78,4 +93,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

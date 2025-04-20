@@ -1,8 +1,4 @@
-{% extends "admin/admin_base.html" %}
-
-{% block title %}Delete Farm{% endblock %}
-
-{% block content %}
+{% extends "admin/admin_base.html" %} {% block title %}Delete Farm{% endblock %} {% block content %}
 <div class="container mt-5">
     <div class="row mb-4">
         <div class="col-md-6">
@@ -26,7 +22,7 @@
                 <h5>Farm Details</h5>
                 <table class="table table-bordered">
                     <tr>
-                        <th style="width: 150px;">Farm ID</th>
+                        <th style="width: 150px">Farm ID</th>
                         <td>{{ farm.id }}</td>
                     </tr>
                     <tr>
@@ -44,10 +40,9 @@
                     <tr>
                         <th>User</th>
                         <td>
-                            {% if farm.user %}
-                                {{ farm.user.username }} (ID: {{ farm.user.id }})
-                            {% else %}
-                                <span class="text-muted">No user assigned</span>
+                            {% if farm.user %} {{ farm.user.username }} (ID: {{ farm.user.id }}) {%
+                            else %}
+                            <span class="text-muted">No user assigned</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -67,4 +62,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

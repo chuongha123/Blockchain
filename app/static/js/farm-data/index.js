@@ -57,7 +57,7 @@ function initApplication(data) {
         // Set up event handlers for view switching
         viewManager.init(
             // View change handler
-            (view) => {
+            view => {
                 if (view === 'chart') {
                     // Small delay to ensure chart container is visible
                     setTimeout(() => {
@@ -67,29 +67,29 @@ function initApplication(data) {
                 }
             },
             // Chart type change handler
-            (chartType) => {
+            chartType => {
                 chartManager.setChartType(chartType);
                 chartManager.renderChart(filterManager.applyDateFilter());
             }
         );
 
         // Set up filter manager event handlers
-        document.getElementById('applyFilter').onclick = function() {
+        document.getElementById('applyFilter').onclick = function () {
             console.log('Apply filter button clicked');
             const filteredData = filterManager.applyDateFilter();
             tableManager.setFilteredData(filteredData);
-            
+
             // Update chart if in chart view
             if (viewManager.getCurrentView() === 'chart') {
                 chartManager.renderChart(filteredData);
             }
         };
-        
-        document.getElementById('resetFilter').onclick = function() {
+
+        document.getElementById('resetFilter').onclick = function () {
             console.log('Reset filter button clicked');
             const resetData = filterManager.resetDateFilter();
             tableManager.setFilteredData(resetData);
-            
+
             // Update chart if in chart view
             if (viewManager.getCurrentView() === 'chart') {
                 chartManager.renderChart(resetData);
@@ -101,10 +101,10 @@ function initApplication(data) {
             header.addEventListener('click', () => {
                 const field = header.getAttribute('data-sort');
                 tableManager.sortData(field);
-                
+
                 // Update filtered data in filter manager after sort
                 filterManager.setCurrentData(tableManager.data);
-                
+
                 // Apply filters again to maintain consistency
                 const filteredData = filterManager.applyDateFilter();
                 tableManager.setFilteredData(filteredData);
@@ -119,4 +119,4 @@ function initApplication(data) {
     } catch (e) {
         console.error('Error initializing application:', e);
     }
-} 
+}

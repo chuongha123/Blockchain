@@ -1,8 +1,4 @@
-{% extends "base.html" %} 
-
-{% block title %}Liên kết nông trại{% endblock %} 
-
-{% block extra_css %}
+{% extends "base.html" %} {% block title %}Liên kết nông trại{% endblock %} {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='/css/profile.css') }}" />
 <style>
     .farm-list {
@@ -27,25 +23,25 @@
         margin-top: 15px;
     }
 </style>
-{% endblock %} 
-
-{% block content %}
+{% endblock %} {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4"><i class="fas fa-link"></i> Liên kết nông trại</h2>
-    
+
     <div class="row">
         <div class="col-md-7">
             <div class="farm-selection">
                 <h4>Thêm nông trại mới</h4>
                 <p class="text-muted">Chọn nông trại để liên kết với tài khoản của bạn</p>
-                
+
                 <form method="post" action="/user-farms/link-farm">
                     <div class="mb-3">
                         <label for="farm_id" class="form-label">Chọn nông trại</label>
                         <select class="form-select" id="farm_id" name="farm_id" required>
                             <option value="" selected disabled>-- Chọn nông trại --</option>
                             {% for farm in available_farms %}
-                            <option value="{{ farm.id }}">{{ farm.name }} (ID: {{ farm.id }})</option>
+                            <option value="{{ farm.id }}">
+                                {{ farm.name }} (ID: {{ farm.id }})
+                            </option>
                             {% endfor %}
                         </select>
                     </div>
@@ -55,36 +51,36 @@
                 </form>
             </div>
         </div>
-        
+
         <div class="col-md-5">
             <div class="farm-selection">
                 <h4>Nông trại đã liên kết</h4>
-                <p class="text-muted">Danh sách nông trại hiện đang được liên kết với tài khoản của bạn</p>
-                
+                <p class="text-muted">
+                    Danh sách nông trại hiện đang được liên kết với tài khoản của bạn
+                </p>
+
                 <div class="farm-list">
-                    {% if user_farms %}
-                        {% for farm in user_farms %}
-                        <div class="farm-card-small">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-1">{{ farm.name }}</h5>
-                                    <p class="mb-0 text-muted small">ID: {{ farm.id }}</p>
-                                </div>
-                                <form method="post" action="/user-farms/unlink-farm/{{ farm.id }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-unlink"></i> Hủy liên kết
-                                    </button>
-                                </form>
+                    {% if user_farms %} {% for farm in user_farms %}
+                    <div class="farm-card-small">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ farm.name }}</h5>
+                                <p class="mb-0 text-muted small">ID: {{ farm.id }}</p>
                             </div>
+                            <form method="post" action="/user-farms/unlink-farm/{{ farm.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-unlink"></i> Hủy liên kết
+                                </button>
+                            </form>
                         </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> Bạn chưa liên kết với nông trại nào
-                        </div>
+                    </div>
+                    {% endfor %} {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Bạn chưa liên kết với nông trại nào
+                    </div>
                     {% endif %}
                 </div>
-                
+
                 <div class="link-button">
                     <a href="/users/me" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Quay lại trang cá nhân
@@ -94,4 +90,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

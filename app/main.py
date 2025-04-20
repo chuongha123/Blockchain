@@ -1,19 +1,18 @@
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, status
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse
 from fastapi.exceptions import HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
-from app.services.database import engine, Base
-from app.routers.auth_routes import router as auth_router
-from app.routers.template_routes import router as template_router
-from app.routers.api_routes import router as api_router
-from app.routers.qr_routes import router as qr_router
 from app.routers.admin.admin_routes import router as admin_router
+from app.routers.api_routes import router as api_router
+from app.routers.auth_routes import router as auth_router
 from app.routers.mock_data_api import router as mock_data_router
-from app.routers.farm_routes import router as farm_router
+from app.routers.qr_routes import router as qr_router
+from app.routers.template_routes import router as template_router
 from app.routers.user_farm_routes import router as user_farm_router
+from app.services.database import engine, Base
 
 # Initialize database tables
 Base.metadata.create_all(bind=engine)
@@ -24,7 +23,7 @@ app = FastAPI(title="Farm Monitor API")
 
 # Add exception handler for authentication errors
 @app.exception_handler(HTTPException)
-async def unauthorized_exception_handler(request: Request, exc: HTTPException):
+async def unauthorized_exception_handler(_: Request, exc: HTTPException):
     if exc.status_code == status.HTTP_401_UNAUTHORIZED:
         return RedirectResponse(url="/login", status_code=status.HTTP_303_SEE_OTHER)
 

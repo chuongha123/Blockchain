@@ -93,11 +93,13 @@
 }
 
 /* Date filter styles */
-#startDate, #endDate {
+#startDate,
+#endDate {
     border-color: #ced4da;
 }
 
-#startDate:focus, #endDate:focus {
+#startDate:focus,
+#endDate:focus {
     border-color: #198754;
     box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
 }
@@ -129,18 +131,18 @@
     .card-header h5 {
         font-size: 1rem;
     }
-    
+
     .btn-group .btn {
         font-size: 0.85rem;
         padding: 0.25rem 0.5rem;
     }
-    
+
     #farmDataTable th,
     #farmDataTable td {
         font-size: 0.85rem;
         padding: 0.5rem;
     }
-    
+
     /* Adjust chart height on small screens */
     #farmDataChart,
     #chartView .card-body > div {

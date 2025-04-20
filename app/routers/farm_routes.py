@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Body, Depends, HTTPException, Request, status, Response
-from fastapi.responses import RedirectResponse, JSONResponse
-from fastapi.templating import Jinja2Templates
 import os
+
+from fastapi import APIRouter, Body, Depends, status
+from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.model.farm_data import Farm, Product
+from app.model.farm_data import Farm
 from app.model.user import User
 from app.services.database import get_db
-from app.services.security import get_current_active_user
 from app.services.generate_qr import GenerateQRService
+from app.services.security import get_current_active_user
 
 router = APIRouter(prefix="/farms", tags=["farm"])
 templates = Jinja2Templates(directory=os.path.join("app", "templates"))
@@ -22,10 +23,10 @@ class HarvestFarm(BaseModel):
 
 @router.post("/{farm_id}/harvest")
 async def harvest_farm(
-    farm_id: str,
-    is_harvested: bool = Body(..., embed=True),
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
+        farm_id: str,
+        is_harvested: bool = Body(..., embed=True),
+        _: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db),
 ):
     """Mark a farm as harvested via AJAX and return QR code"""
 

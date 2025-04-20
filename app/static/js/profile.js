@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const showQrButtons = document.querySelectorAll('.show-qr-btn');
     showQrButtons.forEach(button => {
         // Make sure the onclick handler uses the correct URL
-        button.onclick = function() {
+        button.onclick = function () {
             const farmId = this.getAttribute('data-farm-id');
             window.open(`/farm/${farmId}`, '_blank');
         };

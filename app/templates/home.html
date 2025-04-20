@@ -1,24 +1,14 @@
-{% extends "base.html" %}
-
-{% block title %}GREENBLOCK - Giải pháp nông nghiệp thông minh{% endblock %}
-
-{% block extra_css %}
+{% extends "base.html" %} {% block title %}GREENBLOCK - Giải pháp nông nghiệp thông minh{% endblock
+%} {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', path='/css/home.css') }}" />
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 <!-- Hero Section -->
 <section class="hero-section" id="home">
     <div class="container text-center">
-        <img
-            src="/static/images/123.jpg"
-            alt="FarmDomDom"
-            class="img-fluid mb-4 hero-image"
-        />
+        <img src="/static/images/123.jpg" alt="FarmDomDom" class="img-fluid mb-4 hero-image" />
         <h1 class="display-3 mb-4">GREENBLOCK'S FARM</h1>
         <p class="lead mb-4">
-            Ứng dụng công nghệ Blockchain trong truy xuất nguồn gốc và giám sát chất lượng
-            nông sản
+            Ứng dụng công nghệ Blockchain trong truy xuất nguồn gốc và giám sát chất lượng nông sản
         </p>
         <a href="#tracking" class="btn btn-success btn-lg me-3">Truy xuất ngay</a>
         <a href="#contact" class="btn btn-outline-light btn-lg">Tư vấn giải pháp</a>
@@ -35,10 +25,7 @@
                     <div class="card-body">
                         <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
                         <h4>An toàn & Minh bạch</h4>
-                        <p>
-                            Dữ liệu được bảo mật trên Blockchain, không thể chỉnh sửa hay
-                            làm giả
-                        </p>
+                        <p>Dữ liệu được bảo mật trên Blockchain, không thể chỉnh sửa hay làm giả</p>
                     </div>
                 </div>
             </div>
@@ -47,9 +34,7 @@
                     <div class="card-body">
                         <i class="fas fa-mobile-alt fa-3x text-success mb-3"></i>
                         <h4>Dễ dàng truy cập</h4>
-                        <p>
-                            Quét mã QR để xem thông tin chi tiết về sản phẩm mọi lúc mọi nơi
-                        </p>
+                        <p>Quét mã QR để xem thông tin chi tiết về sản phẩm mọi lúc mọi nơi</p>
                     </div>
                 </div>
             </div>
@@ -59,8 +44,8 @@
                         <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
                         <h4>Giám sát thời gian thực</h4>
                         <p>
-                            Theo dõi các chỉ số môi trường và chất lượng sản phẩm theo thời
-                            gian thực
+                            Theo dõi các chỉ số môi trường và chất lượng sản phẩm theo thời gian
+                            thực
                         </p>
                     </div>
                 </div>
@@ -76,11 +61,7 @@
         <div class="row">
             <div class="col-md-4 mb-4">
                 <div class="card product-card">
-                    <img
-                        src="/static/images/product1.jpg"
-                        class="card-img-top"
-                        alt="Rau sạch"
-                    />
+                    <img src="/static/images/product1.jpg" class="card-img-top" alt="Rau sạch" />
                     <div class="card-body">
                         <h5 class="card-title">Rau an toàn</h5>
                         <p class="card-text">Được trồng trong nhà kính với công nghệ IoT</p>
@@ -131,9 +112,7 @@
                 <!-- Phần tạo mã QR -->
                 <div class="card">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-qrcode"></i> Tạo mã QR cho sản phẩm
-                        </h5>
+                        <h5 class="mb-0"><i class="fas fa-qrcode"></i> Tạo mã QR cho sản phẩm</h5>
                     </div>
                     <div class="card-body">
                         <p>Tạo mã QR để dán lên sản phẩm hoặc bao bì:</p>
@@ -184,9 +163,7 @@
                             placeholder="Email"
                             required
                         />
-                        <div class="invalid-feedback">
-                            Vui lòng nhập địa chỉ email hợp lệ
-                        </div>
+                        <div class="invalid-feedback">Vui lòng nhập địa chỉ email hợp lệ</div>
                     </div>
                     <div class="mb-3">
                         <textarea
@@ -213,8 +190,8 @@
             <div class="col-md-6">
                 <h4>Thông tin liên hệ</h4>
                 <p>
-                    <i class="fas fa-map-marker-alt"></i> Đ.455 Đường Lê Văn việt, Quận 9,
-                    TP.Thủ Đức, TP.HCM
+                    <i class="fas fa-map-marker-alt"></i> Đ.455 Đường Lê Văn việt, Quận 9, TP.Thủ
+                    Đức, TP.HCM
                 </p>
                 <p><i class="fas fa-phone"></i> (84) 0368-347-330</p>
                 <p><i class="fas fa-envelope"></i> 6251020037@st.utc2.edu.vn</p>
@@ -226,9 +203,7 @@
                     <a href="#" class="btn btn-outline-dark me-2"
                         ><i class="fab fa-facebook"></i
                     ></a>
-                    <a href="#" class="btn btn-outline-dark me-2"
-                        ><i class="fab fa-twitter"></i
-                    ></a>
+                    <a href="#" class="btn btn-outline-dark me-2"><i class="fab fa-twitter"></i></a>
                     <a href="#" class="btn btn-outline-dark me-2"
                         ><i class="fab fa-linkedin"></i
                     ></a>
@@ -245,8 +220,6 @@
 >
     <i class="fas fa-arrow-up"></i>
 </button>
-{% endblock %}
-
-{% block extra_js %}
+{% endblock %} {% block extra_js %}
 <script src="{{ url_for('static', path='/js/home.js') }}"></script>
 {% endblock %}

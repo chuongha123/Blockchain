@@ -93,22 +93,25 @@
                     </div>
                 </div>
                 {% endif %}
-                
+
                 <!-- QR Code section - now always visible for harvested farms -->
                 {% if farm.is_harvested and farm.qr_code_url %}
                 <div class="qr-container">
                     <div class="text-center mt-3">
                         <h6>Mã QR truy xuất</h6>
                         <div class="qr-image-container">
-                            <img src="{{ farm.qr_code_url }}" 
-                                 alt="QR Code" class="img-fluid" 
-                                 style="max-width: 150px;">
+                            <img
+                                src="{{ farm.qr_code_url }}"
+                                alt="QR Code"
+                                class="img-fluid"
+                                style="max-width: 150px"
+                            />
                         </div>
                     </div>
                 </div>
                 {% else %}
                 <!-- QR Code container (initially hidden) -->
-                <div class="qr-container" style="display: none;"></div>
+                <div class="qr-container" style="display: none"></div>
                 {% endif %}
 
                 <div class="card-footer d-flex justify-content-between">
@@ -116,10 +119,7 @@
                         <i class="fas fa-chart-line"></i> Xem chi tiết
                     </a>
                     {% if not farm.is_harvested %}
-                    <button 
-                        class="btn btn-success btn-sm harvest-btn"
-                        data-farm-id="{{ farm.id }}"
-                    >
+                    <button class="btn btn-success btn-sm harvest-btn" data-farm-id="{{ farm.id }}">
                         <i class="fas fa-seedling"></i> Đánh dấu thu hoạch
                     </button>
                     {% endif %}
@@ -130,7 +130,8 @@
     </div>
     {% else %}
     <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i> Bạn chưa có nông trại nào. Hãy nhấn vào nút "Liên kết nông trại" để thêm nông trại vào tài khoản của bạn.
+        <i class="fas fa-info-circle"></i> Bạn chưa có nông trại nào. Hãy nhấn vào nút "Liên kết
+        nông trại" để thêm nông trại vào tài khoản của bạn.
     </div>
     {% endif %}
 </div>

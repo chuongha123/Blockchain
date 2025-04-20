@@ -46,10 +46,16 @@ content %}
                                 <td>{{ farm.user_id }}</td>
                                 <td>{{ farm.created_at }}</td>
                                 <td colspan="6" class="text-center">
-                                    <a href="/admin/farm-management/{{ farm.id }}/edit" class="btn btn-sm btn-primary">
+                                    <a
+                                        href="/admin/farm-management/{{ farm.id }}/edit"
+                                        class="btn btn-sm btn-primary"
+                                    >
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    <a href="/admin/farm-management/{{ farm.id }}/delete" class="btn btn-sm btn-danger">
+                                    <a
+                                        href="/admin/farm-management/{{ farm.id }}/delete"
+                                        class="btn btn-sm btn-danger"
+                                    >
                                         <i class="fas fa-trash"></i> Delete
                                     </a>
                                 </td>

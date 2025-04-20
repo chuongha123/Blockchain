@@ -1,12 +1,12 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status, Form
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
-from typing import List, Optional
-import os
 from sqlalchemy.orm import Session
 
 from app.model.farm_data import Farm, Product
-from app.model.user import User, FarmLinkRequest, FarmResponse
+from app.model.user import User
 from app.services.database import get_db
 from app.services.security import get_current_active_user
 
@@ -16,9 +16,9 @@ templates = Jinja2Templates(directory=os.path.join("app", "templates"))
 
 @router.get("/link-farm", response_class=HTMLResponse)
 async def link_farm_form(
-    request: Request,
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
+        request: Request,
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db),
 ):
     """Render form to link user with farms"""
     # Get all available farms
@@ -40,9 +40,9 @@ async def link_farm_form(
 
 @router.post("/link-farm")
 async def link_farm(
-    farm_id: str = Form(...),
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
+        farm_id: str = Form(...),
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db),
 ):
     """Link a farm to the current user"""
     # Check if farm exists
@@ -62,9 +62,9 @@ async def link_farm(
 
 @router.post("/unlink-farm/{farm_id}")
 async def unlink_farm(
-    farm_id: str,
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
+        farm_id: str,
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db),
 ):
     """Unlink a farm from the current user"""
     # Check if farm exists and belongs to user
@@ -88,9 +88,9 @@ async def unlink_farm(
 
 @router.get("/my-farms", response_class=HTMLResponse)
 async def my_farms(
-    request: Request,
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db),
+        request: Request,
+        current_user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db),
 ):
     """View all farms linked to the current user"""
     # Get user's farms

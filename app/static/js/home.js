@@ -107,7 +107,6 @@ function initializeAuth() {
     }
 }
 
-
 // handle contact form
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
